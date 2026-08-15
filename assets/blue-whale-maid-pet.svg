@@ -1,79 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="640" height="720" viewBox="0 0 640 720" role="img" aria-labelledby="title desc">
-  <title id="title">Sleepy blue whale maid desktop pet</title>
-  <desc id="desc">A small blue-haired whale girl in a navy maid dress, sitting with her hands in her lap.</desc>
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="600" viewBox="0 0 480 600" role="img" aria-labelledby="title desc">
+  <title id="title">Blue whale maid desktop pet</title>
+  <desc id="desc">A front-facing chibi whale girl with long blue hair, a navy maid dress, and a white frilled apron.</desc>
   <defs>
-    <linearGradient id="hair" x1="0" y1="0" x2="0.8" y2="1"><stop stop-color="#465fa8"/><stop offset=".55" stop-color="#30477f"/><stop offset="1" stop-color="#73b9d3"/></linearGradient>
-    <linearGradient id="tail" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4765ad"/><stop offset="1" stop-color="#273d79"/></linearGradient>
-    <linearGradient id="dress" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#29335f"/><stop offset="1" stop-color="#171c40"/></linearGradient>
-    <radialGradient id="skin" cx="42%" cy="32%"><stop stop-color="#fff9f6"/><stop offset="1" stop-color="#f3c9c8"/></radialGradient>
-    <radialGradient id="eye" cx="44%" cy="30%"><stop stop-color="#bdeafa"/><stop offset=".38" stop-color="#4879c1"/><stop offset="1" stop-color="#17245d"/></radialGradient>
-    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%"><feGaussianBlur stdDeviation="10"/></filter>
+    <linearGradient id="hair" x1=".2" y1="0" x2=".8" y2="1"><stop stop-color="#5369ad"/><stop offset=".48" stop-color="#354b8c"/><stop offset="1" stop-color="#78bad1"/></linearGradient>
+    <linearGradient id="hairDark" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#344b8c"/><stop offset="1" stop-color="#202f67"/></linearGradient>
+    <linearGradient id="dress" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#303867"/><stop offset="1" stop-color="#171a3d"/></linearGradient>
+    <radialGradient id="skin" cx="48%" cy="30%"><stop stop-color="#fffdfb"/><stop offset="1" stop-color="#f3d3d0"/></radialGradient>
+    <radialGradient id="iris" cx="38%" cy="28%"><stop stop-color="#d9f8ff"/><stop offset=".25" stop-color="#699fe0"/><stop offset=".68" stop-color="#365ca7"/><stop offset="1" stop-color="#152557"/></radialGradient>
+    <filter id="softShadow" x="-30%" y="-80%" width="160%" height="260%"><feGaussianBlur stdDeviation="5"/></filter>
   </defs>
 
-  <!-- Soft grounding shadow -->
-  <ellipse cx="330" cy="670" rx="204" ry="25" fill="#242851" opacity=".18" filter="url(#shadow)"/>
+  <ellipse cx="240" cy="570" rx="104" ry="13" fill="#20264f" opacity=".16" filter="url(#softShadow)"/>
 
-  <!-- Whale tail silhouette -->
-  <path d="M456 421c72 16 98 62 82 119 35-7 62-35 76-69 10 45-1 79-38 99 28 4 47 17 58 39-48 14-86 7-111-22-24 39-65 54-118 36z" fill="url(#tail)" stroke="#17224c" stroke-width="7" stroke-linejoin="round"/>
-  <path d="M505 485c22 31 21 65-4 102" fill="none" stroke="#789bd1" stroke-width="7" stroke-linecap="round" opacity=".55"/>
+  <!-- Whale tail behind the body -->
+  <path d="M347 380c55 18 71 57 55 103 25-5 45-24 60-53 4 37-9 64-38 78 20 7 33 20 40 39-38 4-66-7-84-34-23 27-52 39-88 34z" fill="url(#hairDark)" stroke="#18224f" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M370 414c18 26 18 57 0 88" fill="none" stroke="#7897cf" stroke-width="6" stroke-linecap="round" opacity=".55"/>
 
-  <!-- Back hair and whale-fin locks -->
-  <path d="M191 283c-48 30-61 83-30 125-31 10-50 29-59 57 40 7 70-1 91-27-11 45 3 80 43 104l205 6c53-31 67-83 43-133 31 5 58-4 81-29-36-3-62-22-81-56-28-74-211-109-293-47z" fill="url(#hair)" stroke="#19234e" stroke-width="8" stroke-linejoin="round"/>
-  <path d="M184 323c-30-2-56 12-78 42 31 7 57 4 79-10M473 318c31 7 57 29 81 66-34 7-63 1-86-18" fill="#30477f" stroke="#19234e" stroke-width="8" stroke-linejoin="round"/>
-  <path d="M205 418c-12 55 4 92 48 114M431 407c24 49 14 91-27 126" fill="none" stroke="#75b8d3" stroke-width="11" stroke-linecap="round" opacity=".75"/>
+  <!-- Large back-hair silhouette -->
+  <path d="M107 197c-43 61-43 133-10 195-27 32-38 70-32 112 22-5 40-17 55-36-2 37 12 62 43 77 9-11 15-24 18-39 12 28 33 44 64 48l12-214z" fill="url(#hair)" stroke="#17204c" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M373 197c43 61 43 133 10 195 27 32 38 70 32 112-22-5-40-17-55-36 2 37-12 62-43 77-9-11-15-24-18-39-12 28-33 44-64 48l-12-214z" fill="url(#hair)" stroke="#17204c" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M115 293c-15 66-9 126 18 179M365 293c15 66 9 126-18 179" fill="none" stroke="#86bfd4" stroke-width="9" stroke-linecap="round" opacity=".56"/>
+
+  <!-- Whale side fins -->
+  <path d="M116 189c-32 5-57 28-83 63 32 8 61 2 84-18z" fill="#3d579b" stroke="#17204c" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M364 189c32 5 57 28 83 63-32 8-61 2-84-18z" fill="#3d579b" stroke="#17204c" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M58 244q30 0 51-25M422 244q-30 0-51-25" fill="none" stroke="#f8f3f5" stroke-width="10" stroke-linecap="round"/>
 
   <!-- Headband loop -->
-  <path d="M298 187c-9-52 60-72 82-25 6 12 6 25 2 40" fill="none" stroke="#17224c" stroke-width="10"/>
-  <path d="M305 186c-4-37 46-52 65-18 5 9 5 19 3 29" fill="none" stroke="#5c77ba" stroke-width="8"/>
-
-  <!-- Head -->
-  <ellipse cx="329" cy="342" rx="139" ry="146" fill="url(#skin)" stroke="#182149" stroke-width="8"/>
-  <!-- Maid headband -->
-  <path d="M205 254c13-44 58-75 119-78 64-2 113 26 135 69l-24 22-21-18-20 18-22-19-22 18-25-18-23 18-23-17-23 18-21-15-21 18z" fill="#fffaf8" stroke="#1e2855" stroke-width="7" stroke-linejoin="round"/>
-  <path d="M225 253c17-31 54-52 101-54 49-2 88 16 112 45" fill="none" stroke="#e7cfd8" stroke-width="9" stroke-dasharray="8 10"/>
-  <!-- Bow -->
-  <path d="M440 244c20-20 36-13 34 13 25-13 35 1 18 24-22 11-42 3-54-17z" fill="#62b8d2" stroke="#1d2d60" stroke-width="6"/>
-  <circle cx="449" cy="262" r="9" fill="#3b78ad"/>
-
-  <!-- Hair cap and fringe -->
-  <path d="M205 325c-6-82 47-133 123-136 83-3 140 53 136 143-31-20-52-52-61-91-15 52-37 85-66 101 1-31-6-61-22-91-16 47-45 80-88 99z" fill="url(#hair)" stroke="#19234e" stroke-width="8" stroke-linejoin="round"/>
-  <path d="M239 237c23-22 51-35 84-38M349 201c37 8 65 27 84 58" fill="none" stroke="#829bd6" stroke-width="10" stroke-linecap="round" opacity=".42"/>
-  <path d="M245 272c14 38 8 72-18 101M293 226c20 38 20 77 0 117M355 225c20 33 22 70 7 111M407 238c7 34 2 63-16 88" fill="none" stroke="#223566" stroke-width="5" opacity=".8"/>
+  <path d="M190 73c-4-48 73-62 91-12 4 10 4 20 1 30" fill="none" stroke="#17204c" stroke-width="9" stroke-linecap="round"/>
+  <path d="M199 73c1-34 54-42 70-8 4 8 4 16 2 24" fill="none" stroke="#6078bb" stroke-width="7"/>
 
   <!-- Face -->
-  <ellipse cx="273" cy="360" rx="31" ry="39" fill="url(#eye)" stroke="#202450" stroke-width="6"/>
-  <ellipse cx="385" cy="360" rx="31" ry="39" fill="url(#eye)" stroke="#202450" stroke-width="6"/>
-  <ellipse cx="263" cy="347" rx="10" ry="14" fill="white"/><ellipse cx="375" cy="347" rx="10" ry="14" fill="white"/>
-  <circle cx="281" cy="374" r="6" fill="#d7f8ff"/><circle cx="393" cy="374" r="6" fill="#d7f8ff"/>
-  <path d="M247 320q28-19 52 1M360 321q28-19 51 2" fill="none" stroke="#202450" stroke-width="8" stroke-linecap="round"/>
-  <ellipse cx="236" cy="397" rx="28" ry="14" fill="#f29fa7" opacity=".42"/><ellipse cx="421" cy="397" rx="28" ry="14" fill="#f29fa7" opacity=".42"/>
-  <path d="M310 405q8-8 17 1 9-9 19 0" fill="none" stroke="#7b5365" stroke-width="5" stroke-linecap="round"/>
-  <path d="M225 384q-20 12-28-1M435 384q20 12 28-1" fill="none" stroke="#e9f8ff" stroke-width="12" stroke-linecap="round"/>
+  <ellipse cx="240" cy="237" rx="137" ry="137" fill="url(#skin)" stroke="#18204a" stroke-width="8"/>
 
-  <!-- Body and skirt -->
-  <path d="M236 441c21-27 55-42 94-41 41 0 78 17 98 46l17 123c31 21 51 48 58 81-99 35-234 35-339-1 10-34 33-60 64-79z" fill="url(#dress)" stroke="#171d43" stroke-width="8" stroke-linejoin="round"/>
-  <!-- Sleeves -->
-  <path d="M245 445c-39 13-60 55-65 110l55 17 49-112zM412 448c40 18 57 59 55 112l-57 13-44-115z" fill="#242b58" stroke="#171d43" stroke-width="8"/>
-  <!-- Bib -->
-  <path d="M286 422l43 19 43-19 28 134-70 37-72-37z" fill="#fff9f6" stroke="#202650" stroke-width="7"/>
-  <path d="M280 438l49 21 50-21M329 459v107" fill="none" stroke="#e5ced7" stroke-width="5"/>
-  <circle cx="329" cy="489" r="5" fill="#263264"/><circle cx="329" cy="516" r="5" fill="#263264"/>
-  <!-- Neck bow -->
-  <path d="M329 449c-30-31-47-18-33 15 15 12 27 9 34-4 9 15 22 17 38 3 12-35-7-43-39-14z" fill="#1d244d" stroke="#111633" stroke-width="5"/>
-  <circle cx="330" cy="453" r="10" fill="#6384bd"/>
-  <!-- Apron -->
-  <path d="M252 535c46 25 104 25 154 0l28 99c-64 31-146 31-210 0z" fill="#fffaf8" stroke="#202650" stroke-width="7"/>
-  <path d="M228 630q101 42 202 0" fill="none" stroke="#e4cdd7" stroke-width="8" stroke-dasharray="7 7"/>
-  <path d="M317 585q13 10 26 0c-4 18-20 24-26 0z" fill="#5c91c8"/>
-  <!-- Lap hands -->
-  <path d="M211 545c11-10 28-6 36 8l25 45c7 17-5 34-22 32-15-2-24-14-22-28l-25-32c-8-10-5-20 8-25z" fill="#fffaf8" stroke="#202650" stroke-width="7"/>
-  <path d="M449 545c-11-10-28-6-36 8l-25 45c-7 17 5 34 22 32 15-2 24-14 22-28l25-32c8-10 5-20-8-25z" fill="#fffaf8" stroke="#202650" stroke-width="7"/>
-  <path d="M245 596c-7 13 0 24 15 27 15 3 27-6 29-20 1-13-6-22-20-24zM415 596c7 13 0 24-15 27-15 3-27-6-29-20-1-13 6-22 20-24z" fill="url(#skin)" stroke="#202650" stroke-width="6"/>
-  <path d="M251 603l10 10m3-15 9 12m136-7-10 10m-3-15-9 12" stroke="#d59699" stroke-width="3" stroke-linecap="round"/>
-  <!-- Lace trim and small bow -->
-  <path d="M173 647q12 24 26 2 12 25 26 2 13 25 27 2 13 25 28 2 14 25 29 1 15 25 30 0 15 24 30-1 15 23 29-2 14 22 28-3 13 20 26-5 12 18 23-8" fill="none" stroke="#fffaf8" stroke-width="15" stroke-linecap="round"/>
-  <path d="M430 614c17-19 32-12 25 13 22-11 30 4 12 20-19 5-33-2-40-19z" fill="#d7bd8c" stroke="#1b2148" stroke-width="5"/>
+  <!-- Frilled maid headband -->
+  <path d="M112 162c15-57 65-91 127-92 63 0 114 34 130 91l-21 15-17-17-19 16-19-18-20 17-20-18-21 18-20-18-20 18-19-17-18 17-18-16-17 16z" fill="#fffaf8" stroke="#1b2450" stroke-width="7" stroke-linejoin="round"/>
+  <path d="M132 155c18-39 57-63 108-63s91 24 109 63" fill="none" stroke="#e6ced8" stroke-width="8" stroke-dasharray="7 9"/>
 
-  <!-- Tiny worried marks -->
-  <path d="M495 350q17-13 25 2m-14 16q16-8 20 5" fill="none" stroke="#6685ad" stroke-width="6" stroke-linecap="round"/>
+  <!-- Hair cap and layered bangs -->
+  <path d="M108 227c-7-89 50-144 132-145 84 0 142 57 132 148-28-11-53-35-68-67-7 43-22 75-48 96-2-35-11-67-28-95-12 43-39 77-81 102-2-31-15-56-39-73z" fill="url(#hair)" stroke="#17204c" stroke-width="8" stroke-linejoin="round"/>
+  <path d="M141 149c25-29 58-44 97-45M273 105c35 7 61 25 80 53" fill="none" stroke="#8399d2" stroke-width="9" stroke-linecap="round" opacity=".46"/>
+  <path d="M153 151c14 29 14 61 1 95M212 111c17 39 16 80-3 123M275 111c17 37 18 75 2 115M329 139c9 32 6 63-8 92" fill="none" stroke="#263974" stroke-width="5" stroke-linecap="round" opacity=".8"/>
+  <!-- Hair shine -->
+  <path d="M178 128l-8 20m31-30-7 25m30-29-4 21m35-21 4 23m28-15 7 24" stroke="#a6b6df" stroke-width="7" stroke-linecap="round" opacity=".45"/>
+
+  <!-- Eyes and expression -->
+  <path d="M136 246q39-28 72 1M272 247q35-28 72 0" fill="none" stroke="#18204a" stroke-width="8" stroke-linecap="round"/>
+  <ellipse cx="174" cy="276" rx="35" ry="43" fill="url(#iris)" stroke="#17204c" stroke-width="6"/>
+  <ellipse cx="306" cy="276" rx="35" ry="43" fill="url(#iris)" stroke="#17204c" stroke-width="6"/>
+  <ellipse cx="163" cy="261" rx="12" ry="17" fill="white"/><ellipse cx="295" cy="261" rx="12" ry="17" fill="white"/>
+  <circle cx="184" cy="291" r="7" fill="#dbf9ff"/><circle cx="316" cy="291" r="7" fill="#dbf9ff"/>
+  <path d="M143 234l-18-8m228 8 18-8" stroke="#202753" stroke-width="6" stroke-linecap="round"/>
+  <ellipse cx="132" cy="320" rx="32" ry="15" fill="#f2a7ae" opacity=".43"/><ellipse cx="348" cy="320" rx="32" ry="15" fill="#f2a7ae" opacity=".43"/>
+  <path d="M225 323q15 11 30 0" fill="none" stroke="#7a5364" stroke-width="5" stroke-linecap="round"/>
+
+  <!-- Dress silhouette -->
+  <path d="M165 360c18-25 43-37 75-37s57 12 75 37l19 99c24 19 41 45 49 79-87 30-199 30-286 0 8-34 25-60 49-79z" fill="url(#dress)" stroke="#161c43" stroke-width="8" stroke-linejoin="round"/>
+  <!-- Puff sleeves and arms -->
+  <path d="M171 361c-39 2-61 32-59 70l52 17 42-72zM309 361c39 2 61 32 59 70l-52 17-42-72z" fill="#29315e" stroke="#161c43" stroke-width="8"/>
+  <path d="M135 418l-25 66 46 19 29-66M345 418l25 66-46 19-29-66" fill="#29315e" stroke="#161c43" stroke-width="8"/>
+  <!-- Cuffs and tiny hands -->
+  <path d="M105 473l54 20-8 23-55-21zM375 473l-54 20 8 23 55-21z" fill="#fffaf8" stroke="#19204a" stroke-width="6"/>
+  <path d="M101 493c-16 8-9 30 6 32 13 2 23-7 25-20zM379 493c16 8 9 30-6 32-13 2-23-7-25-20z" fill="url(#skin)" stroke="#19204a" stroke-width="6"/>
+
+  <!-- White bib and corset details -->
+  <path d="M197 343l43 18 43-18 19 101-62 31-62-31z" fill="#fffaf8" stroke="#1a214a" stroke-width="7"/>
+  <path d="M193 359l47 20 47-20M240 378v76" fill="none" stroke="#dfc7d2" stroke-width="5"/>
+  <circle cx="240" cy="401" r="5" fill="#283363"/><circle cx="240" cy="425" r="5" fill="#283363"/>
+  <path d="M239 363c-27-30-47-16-31 16 14 11 24 8 32-4 8 13 19 15 33 3 15-32-5-45-34-15z" fill="#202650" stroke="#111532" stroke-width="5"/>
+  <circle cx="240" cy="367" r="9" fill="#6c85bc"/>
+
+  <!-- Apron with whale emblem -->
+  <path d="M161 430c47 22 111 22 158 0l21 94c-57 25-143 25-200 0z" fill="#fffaf8" stroke="#1a214a" stroke-width="7"/>
+  <path d="M147 514q93 35 186 0" fill="none" stroke="#e3cad5" stroke-width="7" stroke-dasharray="6 8"/>
+  <path d="M218 480c13 8 31 8 44 0-1 17-10 26-22 26-12 0-21-9-22-26z" fill="#628fc5"/>
+  <path d="M260 485c8-3 13-8 16-15 2 11-1 19-11 23" fill="#628fc5"/>
+  <circle cx="233" cy="486" r="2.5" fill="white"/>
+
+  <!-- Layered skirt lace -->
+  <path d="M106 533q12 27 27 2 13 28 28 3 14 27 29 2 15 27 31 1 15 26 31 0 16 25 32-1 15 24 30-2 15 23 29-3 14 21 27-4 13 19 24-7" fill="none" stroke="#fffaf8" stroke-width="18" stroke-linecap="round"/>
+  <path d="M113 535q127 45 254 0" fill="none" stroke="#d9bdca" stroke-width="5" stroke-dasharray="6 8"/>
+
+  <!-- Legs, socks, and shoes -->
+  <path d="M187 538l4 32 34 1 3-30M292 538l-4 32-34 1-2-30" fill="url(#skin)" stroke="#1a2149" stroke-width="6"/>
+  <path d="M190 554h36l-2 25h-34zM254 554h36v25h-34z" fill="#fffaf8" stroke="#1a2149" stroke-width="5"/>
+  <path d="M187 570c-4 25 9 30 37 24l3-22zM293 570c4 25-9 30-37 24l-3-22z" fill="#202650" stroke="#121735" stroke-width="6"/>
+
+  <!-- Blue side bow -->
+  <path d="M354 153c20-19 36-11 32 14 24-11 34 4 17 24-22 8-40 0-52-20z" fill="#67b6cf" stroke="#1b2b5c" stroke-width="6"/>
+  <circle cx="359" cy="171" r="9" fill="#427fac"/>
 </svg>
