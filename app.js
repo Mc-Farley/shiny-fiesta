@@ -7,6 +7,8 @@ const {
   greet1, greet2, greet3, greet4, greet5, greet6, greet7, greet8,
   pout1, pout2, pout3, pout4, pout5, pout6,
   pout7, pout8, pout9, pout10, pout11, pout12,
+  sleep1, sleep2, sleep3, sleep4, sleep5, sleep6,
+  sleep7, sleep8, sleep9, sleep10, sleep11, sleep12,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
@@ -38,10 +40,13 @@ let poutActive = false;
 let recentClicks = [];
 let greetingActive = false;
 let greetingStopTimer;
+let sleeping = false;
+let sleepTimer;
 
 const rapidClickLimit = 10;
 const rapidClickWindow = 2000;
 const greetingDuration = 5000;
+const inactivityDuration = 2 * 60 * 1000;
 
 const shySequence = [
   shy1, shy2, shy3, shy4, shy3, shy2,
@@ -57,6 +62,11 @@ const greetFrames = [
 const poutSequence = [
   pout1, pout2, pout3, pout4, pout5, pout6,
   pout7, pout8, pout9, pout10, pout11, pout12,
+];
+
+const sleepSequence = [
+  sleep1, sleep2, sleep3, sleep4, sleep5, sleep6,
+  sleep7, sleep8, sleep9, sleep10, sleep11, sleep12,
 ];
 
 const squirmSequence = [
@@ -120,6 +130,7 @@ function removeEdgeBackground(source) {
 // only the dark area connected to their edges so dark character details remain.
 const transparentSquirmFrames = Promise.all(squirmSequence.map(removeEdgeBackground));
 const transparentPoutFrames = Promise.all(poutSequence.map(removeEdgeBackground));
+const transparentSleepFrames = Promise.all(sleepSequence.map(removeEdgeBackground));
 const transparentGreetFrames = Promise.all(greetFrames.map(removeEdgeBackground))
   .then((frames) => [
     ...frames,
@@ -201,6 +212,43 @@ async function playPout() {
 
 function playShy() {
   playSequence(shySequence, 78);
+}
+
+function scheduleSleep() {
+  clearTimeout(sleepTimer);
+  if (!sleeping) sleepTimer = setTimeout(startSleeping, inactivityDuration);
+}
+
+function playSleepLoop(frames) {
+  if (!sleeping) return;
+  playSequence(frames, 120, 0, () => playSleepLoop(frames));
+}
+
+async function startSleeping(force = false) {
+  if (sleeping || poutActive || dragging) {
+    if (!sleeping) sleepTimer = setTimeout(startSleeping, 1000);
+    return;
+  }
+  if (playingInteraction && !force) {
+    sleepTimer = setTimeout(startSleeping, 1000);
+    return;
+  }
+  clearTimeout(sleepTimer);
+  stopGreeting();
+  cancelInteraction();
+  sleeping = true;
+  say('Zzz… dreaming of gentle waves.', 2400);
+  const frames = await transparentSleepFrames;
+  playSleepLoop(frames);
+}
+
+function wakeUp() {
+  if (!sleeping) return;
+  sleeping = false;
+  cancelInteraction();
+  say('Oh! I’m awake!', 1800);
+  playClickedReact();
+  scheduleSleep();
 }
 
 function scheduleBlink(delay = 1800 + Math.random() * 2600) {
@@ -333,7 +381,12 @@ function sparkle(count = 7) {
 }
 
 pet.addEventListener('click', () => {
+  if (sleeping) {
+    wakeUp();
+    return;
+  }
   stopGreeting();
+  scheduleSleep();
   if (moved || poutActive) return;
 
   const now = Date.now();
@@ -350,7 +403,8 @@ pet.addEventListener('click', () => {
 
 pet.addEventListener('dblclick', (event) => {
   event.preventDefault();
-  if (poutActive) return;
+  if (poutActive || sleeping) return;
+  scheduleSleep();
   say('A treat?! Thank you! ♡', 2000);
   animate('is-happy');
   sparkle(12);
@@ -361,6 +415,8 @@ pet.addEventListener('pointerdown', (event) => {
     event.preventDefault();
     return;
   }
+  if (sleeping) return;
+  scheduleSleep();
   dragging = true;
   moved = false;
   const box = zone.getBoundingClientRect();
@@ -400,10 +456,16 @@ pet.addEventListener('pointerup', drop);
 pet.addEventListener('pointercancel', drop);
 pet.addEventListener('keydown', (event) => {
   if (poutActive) return;
+  if (sleeping) {
+    wakeUp();
+    return;
+  }
+  scheduleSleep();
   if (event.key === 'Enter' || event.key === ' ') sparkle(5);
 });
 
 soundButton.addEventListener('click', () => {
+  scheduleSleep();
   const enabled = soundButton.getAttribute('aria-pressed') !== 'true';
   soundButton.setAttribute('aria-pressed', String(enabled));
   say(enabled ? 'Sound on ♪' : 'Quiet mode…');
@@ -412,6 +474,15 @@ soundButton.addEventListener('click', () => {
 moodButtons.forEach((button) => {
   button.addEventListener('click', () => {
     if (poutActive) return;
+    if (sleeping) {
+      wakeUp();
+      return;
+    }
+    scheduleSleep();
+    if (button.dataset.mood === 'sleepy') {
+      startSleeping(true);
+      return;
+    }
     react(button.dataset.mood);
     if (button.dataset.mood === 'surprised') playClickedReact();
   });
@@ -419,3 +490,4 @@ moodButtons.forEach((button) => {
 
 // Wave on entry until the character is clicked or the five-second limit passes.
 playGreeting();
+scheduleSleep();
