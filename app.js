@@ -5,6 +5,8 @@ const {
   squirm1, squirm2, squirm3, squirm4, squirm5, squirm6,
   squirm7, squirm8, squirm9, squirm10, squirm11, squirm12,
   greet1, greet2, greet3, greet4, greet5, greet6, greet7, greet8,
+  pout1, pout2, pout3, pout4, pout5, pout6,
+  pout7, pout8, pout9, pout10, pout11, pout12,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
@@ -32,6 +34,11 @@ const blinkSequence = [
 let blinkTimer;
 let blinkFrame = 0;
 let playingInteraction = false;
+let poutActive = false;
+let recentClicks = [];
+
+const rapidClickLimit = 10;
+const rapidClickWindow = 2000;
 
 const shySequence = [
   shy1, shy2, shy3, shy4, shy3, shy2,
@@ -43,6 +50,11 @@ const greetSequence = [
   greet1, greet2, greet3, greet4, greet5, greet6,
   greet7, greet8, greet1, greet2, greet1, greet1,
   idleOpen, idleOpen,
+];
+
+const poutSequence = [
+  pout1, pout2, pout3, pout4, pout5, pout6,
+  pout7, pout8, pout9, pout10, pout11, pout12,
 ];
 
 const squirmSequence = [
@@ -102,9 +114,10 @@ function removeEdgeBackground(source) {
   });
 }
 
-// The supplied drag frames were exported against opaque black. Clean only the
-// dark area connected to their edges so the character's dark details remain.
+// The supplied drag and pout frames were exported against opaque black. Clean
+// only the dark area connected to their edges so dark character details remain.
 const transparentSquirmFrames = Promise.all(squirmSequence.map(removeEdgeBackground));
+const transparentPoutFrames = Promise.all(poutSequence.map(removeEdgeBackground));
 
 const clickedSequence = [
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked4,
@@ -139,6 +152,16 @@ function playGreeting() {
 
 function playClickedReact() {
   playSequence(clickedSequence, 74, 900);
+}
+
+async function playPout() {
+  cancelInteraction();
+  poutActive = true;
+  say('Hmph! Too many taps—give me a moment!', 2400);
+  showReaction('😤');
+  const frames = await transparentPoutFrames;
+  playSequence(frames, 90, 1200);
+  setTimeout(() => { poutActive = false; }, poutSequence.length * 90 + 1200);
 }
 
 function playShy() {
@@ -275,12 +298,23 @@ function sparkle(count = 7) {
 }
 
 pet.addEventListener('click', () => {
-  if (moved) return;
+  if (moved || poutActive) return;
+
+  const now = Date.now();
+  recentClicks = recentClicks.filter((clickedAt) => now - clickedAt <= rapidClickWindow);
+  recentClicks.push(now);
+  if (recentClicks.length >= rapidClickLimit) {
+    recentClicks = [];
+    playPout();
+    return;
+  }
+
   reactRandomly();
 });
 
 pet.addEventListener('dblclick', (event) => {
   event.preventDefault();
+  if (poutActive) return;
   say('A treat?! Thank you! ♡', 2000);
   animate('is-happy');
   sparkle(12);
