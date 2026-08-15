@@ -12,8 +12,8 @@ Open `http://localhost:8000`, then click, double-click, drag, or use the mood bu
 
 ## Image preparation
 
-The original reference was enlarged to 1552×2080 and its connected white background was removed. For compatibility with text-only patch systems, the transparent PNG is Base64-encoded in `pet-image.js` and reconstructed by the browser at runtime.
+The supplied 500×500 transparent idle frames are Base64-encoded in `pet-frames.js` and reconstructed by the browser at runtime. Identical frames are deduplicated, so the complete 14-frame timing sequence uses only the two unique open-eye and closed-eye images.
 
 ## Animation system
 
-Mira uses lightweight Live2D-inspired motion: breathing, automatic blinking, squash and stretch, drag tilt, bounce, sleepy sway, surprise, affection, particles, speech, and selectable emoji moods. The animation honors the operating system's reduced-motion preference.
+Mira uses lightweight Live2D-inspired motion: breathing, frame-based automatic blinking, squash and stretch, drag tilt, bounce, sleepy sway, surprise, affection, particles, speech, and selectable emoji moods. The animation honors the operating system's reduced-motion preference.

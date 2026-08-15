@@ -1,5 +1,6 @@
 const petImage = document.querySelector('#pet-image');
-petImage.src = window.MIRA_PET_IMAGE;
+const { idleOpen, idleClosed } = window.MIRA_FRAMES;
+petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
 const zone = document.querySelector('#pet-zone');
 const speech = document.querySelector('#speech');
@@ -14,6 +15,38 @@ let dragging = false;
 let moved = false;
 let start = { x: 0, y: 0, left: 0, top: 0 };
 let reactionTimer;
+
+
+const blinkSequence = [
+  idleOpen, idleOpen, idleOpen, idleOpen,
+  idleClosed,
+  idleOpen, idleOpen, idleOpen, idleOpen,
+  idleClosed, idleClosed,
+  idleOpen, idleOpen, idleOpen,
+];
+let blinkTimer;
+let blinkFrame = 0;
+
+function scheduleBlink(delay = 1800 + Math.random() * 2600) {
+  clearTimeout(blinkTimer);
+  blinkTimer = setTimeout(playBlink, delay);
+}
+
+function playBlink() {
+  if (dragging) {
+    scheduleBlink(600);
+    return;
+  }
+  petImage.src = blinkSequence[blinkFrame];
+  blinkFrame += 1;
+  if (blinkFrame < blinkSequence.length) {
+    blinkTimer = setTimeout(playBlink, 72);
+  } else {
+    blinkFrame = 0;
+    petImage.src = idleOpen;
+    scheduleBlink();
+  }
+}
 
 const moods = {
   happy: { emoji: '😊', line: 'Today is a good day!', animation: 'is-happy', sparks: 8 },
@@ -90,6 +123,8 @@ pet.addEventListener('pointerdown', (event) => {
   const box = zone.getBoundingClientRect();
   start = { x: event.clientX, y: event.clientY, left: box.left, top: box.top };
   pet.setPointerCapture(event.pointerId);
+  clearTimeout(blinkTimer);
+  petImage.src = idleOpen;
   pet.classList.remove('is-idle');
   pet.classList.add('is-dragging');
   say('Wheee—careful!', 900);
@@ -114,6 +149,7 @@ function drop() {
   pet.classList.remove('is-dragging');
   pet.classList.add('is-idle');
   if (moved) say('This spot is nice!', 1400);
+  scheduleBlink(900);
   reaction.classList.remove('show');
   setTimeout(() => { moved = false; }, 50);
 }
@@ -134,4 +170,5 @@ moodButtons.forEach((button) => {
   button.addEventListener('click', () => react(button.dataset.mood));
 });
 
+scheduleBlink(1200);
 setTimeout(() => say('Hi! I’m Mira ♡', 2200), 500);
