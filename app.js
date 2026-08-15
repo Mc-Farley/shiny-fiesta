@@ -188,11 +188,15 @@ function playClickedReact() {
 async function playPout() {
   cancelInteraction();
   poutActive = true;
+  pet.disabled = true;
   say('Hmph! Too many taps—give me a moment!', 2400);
   showReaction('😤');
   const frames = await transparentPoutFrames;
-  playSequence(frames, 90, 1200);
-  setTimeout(() => { poutActive = false; }, poutSequence.length * 90 + 1200);
+  playSequence(frames, 90, 0, () => {
+    poutActive = false;
+    pet.disabled = false;
+    scheduleBlink(1200);
+  });
 }
 
 function playShy() {
@@ -353,6 +357,10 @@ pet.addEventListener('dblclick', (event) => {
 });
 
 pet.addEventListener('pointerdown', (event) => {
+  if (poutActive) {
+    event.preventDefault();
+    return;
+  }
   dragging = true;
   moved = false;
   const box = zone.getBoundingClientRect();
@@ -391,6 +399,7 @@ function drop() {
 pet.addEventListener('pointerup', drop);
 pet.addEventListener('pointercancel', drop);
 pet.addEventListener('keydown', (event) => {
+  if (poutActive) return;
   if (event.key === 'Enter' || event.key === ' ') sparkle(5);
 });
 
@@ -402,6 +411,7 @@ soundButton.addEventListener('click', () => {
 
 moodButtons.forEach((button) => {
   button.addEventListener('click', () => {
+    if (poutActive) return;
     react(button.dataset.mood);
     if (button.dataset.mood === 'surprised') playClickedReact();
   });
