@@ -12,7 +12,7 @@ Open `http://localhost:8000`, then click, double-click, drag, or use the mood bu
 
 ## Image preparation
 
-The cleaned 512×512 transparent frames are Base64-encoded in `pet-frames.js` and reconstructed by the browser at runtime. Identical frames are deduplicated: the idle blink uses two unique images, while the cleaned `blush_shy`, `clicked_react`, and `Dragged_squirm` sequences use deduplicated stages. The first visit also plays a one-time `greet_wave` sequence. The click reactions return smoothly to idle, while `Dragged_squirm` loops for as long as the character is held.
+The cleaned 512×512 transparent frames are Base64-encoded in `pet-frames.js` and reconstructed by the browser at runtime. Identical frames are deduplicated: the idle blink uses two unique images, and the cleaned `blush_shy` and `clicked_react` sequences use deduplicated stages. `Dragged_squirm` uses its complete 12-frame animation. The first visit also plays a one-time `greet_wave` sequence. The click reactions return smoothly to idle, while `Dragged_squirm` loops for as long as the character is held.
 
 ## Animation system
 
