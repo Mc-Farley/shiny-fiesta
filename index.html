@@ -18,13 +18,22 @@
         <span><kbd>Drag</kbd> move her</span>
         <span><kbd>Double click</kbd> give a treat</span>
       </div>
+      <div class="moods" aria-label="Choose Mira's mood">
+        <button type="button" data-mood="happy" aria-label="Make Mira happy">😊</button>
+        <button type="button" data-mood="love" aria-label="Make Mira feel loved">🥰</button>
+        <button type="button" data-mood="surprised" aria-label="Surprise Mira">😮</button>
+        <button type="button" data-mood="sleepy" aria-label="Make Mira sleepy">😴</button>
+      </div>
     </section>
 
     <section id="pet-zone" class="pet-zone" aria-label="Mira the interactive whale maid">
       <div id="speech" class="speech" role="status" aria-live="polite">Hi! I’m Mira ♡</div>
+      <div id="reaction" class="reaction" aria-hidden="true">♡</div>
       <div id="sparkles" class="sparkles" aria-hidden="true"></div>
       <button id="pet" class="pet is-idle" aria-label="Play with Mira" type="button">
         <img id="pet-image" alt="A chibi blue-haired whale maid in a frilled navy dress" draggable="false">
+        <span class="blink-eye blink-eye-left" aria-hidden="true"></span>
+        <span class="blink-eye blink-eye-right" aria-hidden="true"></span>
       </button>
       <div class="floor-shadow" aria-hidden="true"></div>
     </section>
