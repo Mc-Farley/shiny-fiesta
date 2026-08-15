@@ -2,6 +2,7 @@ const petImage = document.querySelector('#pet-image');
 const {
   idleOpen, idleClosed, shy1, shy2, shy3, shy4, shy5,
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked6, clicked7,
+  squirm1, squirm2, squirm3, squirm4, squirm5, squirm6, squirm7, squirm8,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
@@ -34,6 +35,11 @@ const shySequence = [
   shy1, shy2, shy3, shy4, shy3, shy2,
   shy1, shy5, shy1, shy2, shy1, shy1,
   idleOpen, idleOpen,
+];
+
+const squirmSequence = [
+  squirm1, squirm2, squirm3, squirm4, squirm5, squirm6,
+  squirm7, squirm8, squirm1, squirm2, squirm1, squirm1,
 ];
 
 const clickedSequence = [
@@ -89,6 +95,17 @@ function playBlink() {
     petImage.src = idleOpen;
     scheduleBlink();
   }
+}
+
+function playSquirm() {
+  let frame = 0;
+  const next = () => {
+    if (!dragging) return;
+    petImage.src = squirmSequence[frame];
+    frame = (frame + 1) % squirmSequence.length;
+    interactionTimer = setTimeout(next, 90);
+  };
+  next();
 }
 
 function cancelInteraction() {
@@ -206,9 +223,10 @@ pet.addEventListener('pointerdown', (event) => {
   pet.setPointerCapture(event.pointerId);
   clearTimeout(blinkTimer);
   cancelInteraction();
+  playSquirm();
   pet.classList.remove('is-idle');
   pet.classList.add('is-dragging');
-  say('Wheee—careful!', 900);
+  say('Hey—hold on gently!', 1100);
 });
 
 pet.addEventListener('pointermove', (event) => {
@@ -225,6 +243,7 @@ pet.addEventListener('pointermove', (event) => {
 function drop() {
   if (!dragging) return;
   dragging = false;
+  cancelInteraction();
   pet.classList.remove('is-dragging');
   pet.classList.add('is-idle');
   if (moved) say('This spot is nice!', 1400);
