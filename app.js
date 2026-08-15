@@ -49,10 +49,9 @@ const shySequence = [
   idleOpen, idleOpen,
 ];
 
-const greetSequence = [
+const greetFrames = [
   greet1, greet2, greet3, greet4, greet5, greet6,
-  greet7, greet8, greet1, greet2, greet1, greet1,
-  idleOpen, idleOpen,
+  greet7, greet8,
 ];
 
 const poutSequence = [
@@ -121,7 +120,11 @@ function removeEdgeBackground(source) {
 // only the dark area connected to their edges so dark character details remain.
 const transparentSquirmFrames = Promise.all(squirmSequence.map(removeEdgeBackground));
 const transparentPoutFrames = Promise.all(poutSequence.map(removeEdgeBackground));
-const transparentGreetFrames = Promise.all(greetSequence.map(removeEdgeBackground));
+const transparentGreetFrames = Promise.all(greetFrames.map(removeEdgeBackground))
+  .then((frames) => [
+    ...frames,
+    ...frames.slice(1, -1).reverse(),
+  ]);
 
 const clickedSequence = [
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked4,
