@@ -3,6 +3,7 @@ const {
   idleOpen, idleClosed, shy1, shy2, shy3, shy4, shy5,
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked6, clicked7,
   squirm1, squirm2, squirm3, squirm4, squirm5, squirm6, squirm7, squirm8,
+  greet1, greet2, greet3, greet4, greet5, greet6, greet7, greet8,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
@@ -37,6 +38,12 @@ const shySequence = [
   idleOpen, idleOpen,
 ];
 
+const greetSequence = [
+  greet1, greet2, greet3, greet4, greet5, greet6,
+  greet7, greet8, greet1, greet2, greet1, greet1,
+  idleOpen, idleOpen,
+];
+
 const squirmSequence = [
   squirm1, squirm2, squirm3, squirm4, squirm5, squirm6,
   squirm7, squirm8, squirm1, squirm2, squirm1, squirm1,
@@ -66,6 +73,11 @@ function playSequence(sequence, frameDelay, returnDelay = 1100) {
     }
   };
   next();
+}
+
+function playGreeting() {
+  say('Hi! I’m DeepSeek ♡', 2200);
+  playSequence(greetSequence, 90, 900);
 }
 
 function playClickedReact() {
@@ -267,5 +279,12 @@ moodButtons.forEach((button) => {
   button.addEventListener('click', () => react(button.dataset.mood));
 });
 
-scheduleBlink(1200);
-setTimeout(() => say('Hi! I’m DeepSeek ♡', 2200), 500);
+const greetingStorageKey = 'deepseek-greet-wave-seen';
+const isFirstVisit = localStorage.getItem(greetingStorageKey) !== 'true';
+
+if (isFirstVisit) {
+  localStorage.setItem(greetingStorageKey, 'true');
+  playGreeting();
+} else {
+  scheduleBlink(1200);
+}
