@@ -50,6 +50,62 @@ const squirmSequence = [
   squirm7, squirm8, squirm9, squirm10, squirm11, squirm12,
 ];
 
+function removeEdgeBackground(source) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      context.drawImage(image, 0, 0);
+
+      const frame = context.getImageData(0, 0, canvas.width, canvas.height);
+      const { data } = frame;
+      const visited = new Uint8Array(canvas.width * canvas.height);
+      const queue = [];
+      const addPixel = (x, y) => {
+        if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) return;
+        const pixel = y * canvas.width + x;
+        if (visited[pixel]) return;
+        visited[pixel] = 1;
+        const offset = pixel * 4;
+        if (data[offset] <= 18 && data[offset + 1] <= 18 && data[offset + 2] <= 18) {
+          queue.push(pixel);
+        }
+      };
+
+      for (let x = 0; x < canvas.width; x += 1) {
+        addPixel(x, 0);
+        addPixel(x, canvas.height - 1);
+      }
+      for (let y = 0; y < canvas.height; y += 1) {
+        addPixel(0, y);
+        addPixel(canvas.width - 1, y);
+      }
+
+      for (let index = 0; index < queue.length; index += 1) {
+        const pixel = queue[index];
+        data[pixel * 4 + 3] = 0;
+        const x = pixel % canvas.width;
+        const y = Math.floor(pixel / canvas.width);
+        addPixel(x - 1, y);
+        addPixel(x + 1, y);
+        addPixel(x, y - 1);
+        addPixel(x, y + 1);
+      }
+
+      context.putImageData(frame, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    image.src = source;
+  });
+}
+
+// The supplied drag frames were exported against opaque black. Clean only the
+// dark area connected to their edges so the character's dark details remain.
+const transparentSquirmFrames = Promise.all(squirmSequence.map(removeEdgeBackground));
+
 const clickedSequence = [
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked4,
   clicked6, clicked7, clicked6, clicked6, clicked6, clicked6,
@@ -110,12 +166,14 @@ function playBlink() {
   }
 }
 
-function playSquirm() {
+async function playSquirm() {
+  const frames = await transparentSquirmFrames;
+  if (!dragging) return;
   let frame = 0;
   const next = () => {
     if (!dragging) return;
-    petImage.src = squirmSequence[frame];
-    frame = (frame + 1) % squirmSequence.length;
+    petImage.src = frames[frame];
+    frame = (frame + 1) % frames.length;
     interactionTimer = setTimeout(next, 90);
   };
   next();
