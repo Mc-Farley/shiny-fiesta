@@ -12,8 +12,8 @@ Open `http://localhost:8000`, then click, double-click, drag, or use the mood bu
 
 ## Image preparation
 
-The cleaned 512×512 transparent frames are Base64-encoded in `pet-frames.js` and reconstructed by the browser at runtime. Identical frames are deduplicated: the idle blink uses two unique images, while the cleaned 14-frame `blush_shy` interaction uses five unique shy stages and returns smoothly to idle.
+The cleaned 512×512 transparent frames are Base64-encoded in `pet-frames.js` and reconstructed by the browser at runtime. Identical frames are deduplicated: the idle blink uses two unique images, while the cleaned `blush_shy` and `clicked_react` sequences each use deduplicated stages and return smoothly to idle.
 
 ## Animation system
 
-DeepSeek uses lightweight Live2D-inspired motion: breathing, frame-based automatic blinking, a click-triggered `blush_shy` sequence, squash and stretch, drag tilt, bounce, sleepy sway, surprise, affection, particles, speech, and selectable moods. The animation honors the operating system's reduced-motion preference.
+DeepSeek uses lightweight Live2D-inspired motion: breathing, frame-based automatic blinking, a click-triggered `clicked_react` sequence, a love-triggered `blush_shy` sequence, squash and stretch, drag tilt, bounce, sleepy sway, surprise, affection, particles, speech, and selectable moods. The animation honors the operating system's reduced-motion preference.

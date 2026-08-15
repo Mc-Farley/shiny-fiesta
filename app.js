@@ -1,6 +1,7 @@
 const petImage = document.querySelector('#pet-image');
 const {
   idleOpen, idleClosed, shy1, shy2, shy3, shy4, shy5,
+  clicked1, clicked2, clicked3, clicked4, clicked5, clicked6, clicked7,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
@@ -35,23 +36,37 @@ const shySequence = [
   idleOpen, idleOpen,
 ];
 
-function playShy() {
+const clickedSequence = [
+  clicked1, clicked2, clicked3, clicked4, clicked5, clicked4,
+  clicked6, clicked7, clicked6, clicked6, clicked6, clicked6,
+  idleOpen, idleOpen,
+];
+
+function playSequence(sequence, frameDelay, returnDelay = 1100) {
   if (playingInteraction || dragging) return;
   playingInteraction = true;
   clearTimeout(blinkTimer);
   let frame = 0;
   const next = () => {
-    petImage.src = shySequence[frame];
+    petImage.src = sequence[frame];
     frame += 1;
-    if (frame < shySequence.length) {
-      blinkTimer = setTimeout(next, 78);
+    if (frame < sequence.length) {
+      blinkTimer = setTimeout(next, frameDelay);
     } else {
       petImage.src = idleOpen;
       playingInteraction = false;
-      scheduleBlink(1100);
+      scheduleBlink(returnDelay);
     }
   };
   next();
+}
+
+function playClickedReact() {
+  playSequence(clickedSequence, 74, 900);
+}
+
+function playShy() {
+  playSequence(shySequence, 78);
 }
 
 function scheduleBlink(delay = 1800 + Math.random() * 2600) {
@@ -129,9 +144,9 @@ function sparkle(count = 7) {
 
 pet.addEventListener('click', () => {
   if (moved) return;
-  say('Oh… hello. You surprised me!', 1800);
+  say('Ah! You got me!', 1500);
   animate('is-petted');
-  playShy();
+  playClickedReact();
 });
 
 pet.addEventListener('dblclick', (event) => {
