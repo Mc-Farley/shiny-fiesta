@@ -36,9 +36,12 @@ let blinkFrame = 0;
 let playingInteraction = false;
 let poutActive = false;
 let recentClicks = [];
+let greetingActive = false;
+let greetingStopTimer;
 
 const rapidClickLimit = 10;
 const rapidClickWindow = 2000;
+const greetingDuration = 5000;
 
 const shySequence = [
   shy1, shy2, shy3, shy4, shy3, shy2,
@@ -114,10 +117,11 @@ function removeEdgeBackground(source) {
   });
 }
 
-// The supplied drag and pout frames were exported against opaque black. Clean
+// The supplied interaction frames were exported against opaque black. Clean
 // only the dark area connected to their edges so dark character details remain.
 const transparentSquirmFrames = Promise.all(squirmSequence.map(removeEdgeBackground));
 const transparentPoutFrames = Promise.all(poutSequence.map(removeEdgeBackground));
+const transparentGreetFrames = Promise.all(greetSequence.map(removeEdgeBackground));
 
 const clickedSequence = [
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked4,
@@ -125,7 +129,7 @@ const clickedSequence = [
   idleOpen, idleOpen,
 ];
 
-function playSequence(sequence, frameDelay, returnDelay = 1100) {
+function playSequence(sequence, frameDelay, returnDelay = 1100, onComplete) {
   if (playingInteraction || dragging) return;
   playingInteraction = true;
   clearTimeout(blinkTimer);
@@ -139,19 +143,43 @@ function playSequence(sequence, frameDelay, returnDelay = 1100) {
     } else {
       petImage.src = idleOpen;
       playingInteraction = false;
-      scheduleBlink(returnDelay);
+      if (onComplete) {
+        onComplete();
+      } else {
+        scheduleBlink(returnDelay);
+      }
     }
   };
   next();
 }
 
-function playGreeting() {
-  say('Hi! I’m DeepSeek ♡', 2200);
-  playSequence(greetSequence, 90, 900);
+function playGreetingWave(frames) {
+  if (!greetingActive) return;
+  playSequence(frames, 90, 0, () => playGreetingWave(frames));
+}
+
+function stopGreeting(startIdle = false) {
+  if (!greetingActive) return;
+  greetingActive = false;
+  clearTimeout(greetingStopTimer);
+  cancelInteraction();
+  if (startIdle) scheduleBlink(900);
+}
+
+async function playGreeting() {
+  greetingActive = true;
+  greetingStopTimer = setTimeout(() => stopGreeting(true), greetingDuration);
+  say('Hi! I’m DeepSeek ♡', greetingDuration);
+  const frames = await transparentGreetFrames;
+  playGreetingWave(frames);
 }
 
 function playClickedReact() {
-  playSequence(clickedSequence, 74, 900);
+  const resumeGreeting = greetingActive;
+  if (resumeGreeting) cancelInteraction();
+  playSequence(clickedSequence, 74, 900, resumeGreeting
+    ? () => transparentGreetFrames.then(playGreetingWave)
+    : undefined);
 }
 
 async function playPout() {
@@ -298,6 +326,7 @@ function sparkle(count = 7) {
 }
 
 pet.addEventListener('click', () => {
+  stopGreeting();
   if (moved || poutActive) return;
 
   const now = Date.now();
@@ -369,9 +398,11 @@ soundButton.addEventListener('click', () => {
 });
 
 moodButtons.forEach((button) => {
-  button.addEventListener('click', () => react(button.dataset.mood));
+  button.addEventListener('click', () => {
+    react(button.dataset.mood);
+    if (button.dataset.mood === 'surprised') playClickedReact();
+  });
 });
 
-// Greet on every page entry rather than suppressing the wave after a previous
-// visit stored in localStorage.
+// Wave on entry until the character is clicked or the five-second limit passes.
 playGreeting();
