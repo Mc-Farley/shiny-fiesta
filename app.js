@@ -21,6 +21,7 @@ const moodButtons = document.querySelectorAll('[data-mood]');
 
 let messageTimer;
 let dragging = false;
+let pointerPending = false;
 let moved = false;
 let start = { x: 0, y: 0, left: 0, top: 0 };
 let reactionTimer;
@@ -47,6 +48,7 @@ const rapidClickLimit = 10;
 const rapidClickWindow = 2000;
 const greetingDuration = 5000;
 const inactivityDuration = 2 * 60 * 1000;
+const dragThreshold = (2 / 25.4) * 96;
 
 const shySequence = [
   shy1, shy2, shy3, shy4, shy3, shy2,
@@ -417,24 +419,28 @@ pet.addEventListener('pointerdown', (event) => {
   }
   if (sleeping) return;
   scheduleSleep();
-  dragging = true;
+  pointerPending = true;
   moved = false;
   const box = zone.getBoundingClientRect();
   start = { x: event.clientX, y: event.clientY, left: box.left, top: box.top };
   pet.setPointerCapture(event.pointerId);
-  clearTimeout(blinkTimer);
-  cancelInteraction();
-  playSquirm();
-  pet.classList.remove('is-idle');
-  pet.classList.add('is-dragging');
-  say('Hey—hold on gently!', 1100);
 });
 
 pet.addEventListener('pointermove', (event) => {
-  if (!dragging) return;
+  if (!pointerPending && !dragging) return;
   const dx = event.clientX - start.x;
   const dy = event.clientY - start.y;
-  if (Math.hypot(dx, dy) > 5) moved = true;
+  if (!dragging) {
+    if (Math.hypot(dx, dy) < dragThreshold) return;
+    dragging = true;
+    moved = true;
+    clearTimeout(blinkTimer);
+    cancelInteraction();
+    playSquirm();
+    pet.classList.remove('is-idle');
+    pet.classList.add('is-dragging');
+    say('Hey—hold on gently!', 1100);
+  }
   const maxLeft = innerWidth - zone.offsetWidth / 2;
   const maxTop = innerHeight - zone.offsetHeight / 2;
   zone.style.left = `${Math.max(zone.offsetWidth / 2, Math.min(maxLeft, start.left + zone.offsetWidth / 2 + dx))}px`;
@@ -442,6 +448,8 @@ pet.addEventListener('pointermove', (event) => {
 });
 
 function drop() {
+  if (!pointerPending && !dragging) return;
+  pointerPending = false;
   if (!dragging) return;
   dragging = false;
   cancelInteraction();

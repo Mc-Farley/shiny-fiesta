@@ -8,7 +8,7 @@ An interactive web desktop pet built directly from the supplied character image.
 python3 -m http.server 8000
 ```
 
-Open `http://localhost:8000`, then click, double-click, drag, or use the mood buttons to interact with DeepSeek.
+Open `http://localhost:8000`, then click, double-click, drag, or use the mood buttons to interact with DeepSeek. Dragging begins after roughly 2 mm of pointer movement so ordinary clicks and double-clicks do not start the drag animation.
 
 ## Image preparation
 
