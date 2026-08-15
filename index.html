@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#eaf2ff">
+  <title>Mira — Desktop Pet</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="desktop" aria-label="Interactive desktop pet playground">
+    <section class="welcome">
+      <span class="eyebrow">YOUR TINY DESKTOP FRIEND</span>
+      <h1>Meet <em>Mira</em></h1>
+      <p>She may look a little sleepy, but she’s always happy to see you.</p>
+      <div class="tips" aria-label="Interaction guide">
+        <span><kbd>Click</kbd> say hello</span>
+        <span><kbd>Drag</kbd> move her</span>
+        <span><kbd>Double click</kbd> give a treat</span>
+      </div>
+    </section>
+
+    <section id="pet-zone" class="pet-zone" aria-label="Mira the interactive whale maid">
+      <div id="speech" class="speech" role="status" aria-live="polite">Hi! I’m Mira ♡</div>
+      <div id="sparkles" class="sparkles" aria-hidden="true"></div>
+      <button id="pet" class="pet is-idle" aria-label="Play with Mira" type="button">
+        <img id="pet-image" alt="A chibi blue-haired whale maid in a frilled navy dress" draggable="false">
+      </button>
+      <div class="floor-shadow" aria-hidden="true"></div>
+    </section>
+
+    <div class="status"><i></i><span>Mira is feeling cozy</span></div>
+    <button id="sound" class="sound" type="button" aria-label="Toggle sound" aria-pressed="true">♪</button>
+  </main>
+  <script src="pet-image.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
