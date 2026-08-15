@@ -29,7 +29,6 @@ const blinkSequence = [
 let blinkTimer;
 let blinkFrame = 0;
 let playingInteraction = false;
-let lastRandomReaction = -1;
 
 const shySequence = [
   shy1, shy2, shy3, shy4, shy3, shy2,
@@ -100,6 +99,7 @@ function cancelInteraction() {
 
 const randomReactions = [
   {
+    name: 'clicked_react',
     play: playClickedReact,
     lines: ['Ah! You got me!', 'Hehe, that tickles!', 'Hello to you too!'],
     animation: 'is-petted',
@@ -107,6 +107,7 @@ const randomReactions = [
     sparks: 6,
   },
   {
+    name: 'blush_shy',
     play: playShy,
     lines: ['Oh... you noticed me ♡', 'You’re making me blush!', 'That was unexpectedly sweet...'],
     animation: 'is-love',
@@ -125,12 +126,7 @@ function showReaction(emoji) {
 }
 
 function pickRandomReaction() {
-  let index = Math.floor(Math.random() * randomReactions.length);
-  if (randomReactions.length > 1 && index === lastRandomReaction) {
-    index = (index + 1) % randomReactions.length;
-  }
-  lastRandomReaction = index;
-  return randomReactions[index];
+  return randomReactions[Math.floor(Math.random() * randomReactions.length)];
 }
 
 function reactRandomly() {
