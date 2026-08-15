@@ -1,5 +1,7 @@
 const petImage = document.querySelector('#pet-image');
-const { idleOpen, idleClosed } = window.MIRA_FRAMES;
+const {
+  idleOpen, idleClosed, shy1, shy2, shy3, shy4, shy5, shy6, shy7,
+} = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
 const zone = document.querySelector('#pet-zone');
@@ -9,7 +11,6 @@ const soundButton = document.querySelector('#sound');
 const reaction = document.querySelector('#reaction');
 const moodButtons = document.querySelectorAll('[data-mood]');
 
-const greetings = ['Hello there! ♡', 'That tickles!', 'Did you need me?', 'I’m awake… mostly.', 'Let’s be friends!'];
 let messageTimer;
 let dragging = false;
 let moved = false;
@@ -26,6 +27,33 @@ const blinkSequence = [
 ];
 let blinkTimer;
 let blinkFrame = 0;
+let playingInteraction = false;
+
+const shySequence = [
+  shy1, shy2, shy3, shy4, shy5, shy6,
+  shy7, shy7, shy7, shy7, shy7,
+  shy6, shy5, shy4, shy3, shy2,
+  shy1, shy1, shy2,
+];
+
+function playShy() {
+  if (playingInteraction || dragging) return;
+  playingInteraction = true;
+  clearTimeout(blinkTimer);
+  let frame = 0;
+  const next = () => {
+    petImage.src = shySequence[frame];
+    frame += 1;
+    if (frame < shySequence.length) {
+      blinkTimer = setTimeout(next, 78);
+    } else {
+      petImage.src = idleOpen;
+      playingInteraction = false;
+      scheduleBlink(1100);
+    }
+  };
+  next();
+}
 
 function scheduleBlink(delay = 1800 + Math.random() * 2600) {
   clearTimeout(blinkTimer);
@@ -33,7 +61,7 @@ function scheduleBlink(delay = 1800 + Math.random() * 2600) {
 }
 
 function playBlink() {
-  if (dragging) {
+  if (dragging || playingInteraction) {
     scheduleBlink(600);
     return;
   }
@@ -83,6 +111,7 @@ function react(name) {
   say(mood.line, 1900);
   animate(mood.animation);
   sparkle(mood.sparks);
+  if (name === 'love') playShy();
 }
 
 function sparkle(count = 7) {
@@ -101,11 +130,9 @@ function sparkle(count = 7) {
 
 pet.addEventListener('click', () => {
   if (moved) return;
-  say(greetings[Math.floor(Math.random() * greetings.length)]);
+  say('Oh… hello. You surprised me!', 1800);
   animate('is-petted');
-  sparkle(4);
-  reaction.textContent = '♡';
-  reaction.classList.add('show');
+  playShy();
 });
 
 pet.addEventListener('dblclick', (event) => {
@@ -113,8 +140,6 @@ pet.addEventListener('dblclick', (event) => {
   say('A treat?! Thank you! ♡', 2000);
   animate('is-happy');
   sparkle(12);
-  reaction.textContent = '🍰';
-  reaction.classList.add('show');
 });
 
 pet.addEventListener('pointerdown', (event) => {
@@ -128,8 +153,6 @@ pet.addEventListener('pointerdown', (event) => {
   pet.classList.remove('is-idle');
   pet.classList.add('is-dragging');
   say('Wheee—careful!', 900);
-  reaction.textContent = '😮';
-  reaction.classList.add('show');
 });
 
 pet.addEventListener('pointermove', (event) => {
@@ -150,7 +173,6 @@ function drop() {
   pet.classList.add('is-idle');
   if (moved) say('This spot is nice!', 1400);
   scheduleBlink(900);
-  reaction.classList.remove('show');
   setTimeout(() => { moved = false; }, 50);
 }
 
@@ -171,4 +193,4 @@ moodButtons.forEach((button) => {
 });
 
 scheduleBlink(1200);
-setTimeout(() => say('Hi! I’m Mira ♡', 2200), 500);
+setTimeout(() => say('Hi! I’m DeepSeek ♡', 2200), 500);
