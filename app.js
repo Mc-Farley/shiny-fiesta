@@ -2,7 +2,8 @@ const petImage = document.querySelector('#pet-image');
 const {
   idleOpen, idleClosed, shy1, shy2, shy3, shy4, shy5,
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked6, clicked7,
-  squirm1, squirm2, squirm3, squirm4, squirm5, squirm6, squirm7, squirm8,
+  squirm1, squirm2, squirm3, squirm4, squirm5, squirm6,
+  squirm7, squirm8, squirm9, squirm10, squirm11, squirm12,
   greet1, greet2, greet3, greet4, greet5, greet6, greet7, greet8,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
@@ -46,7 +47,7 @@ const greetSequence = [
 
 const squirmSequence = [
   squirm1, squirm2, squirm3, squirm4, squirm5, squirm6,
-  squirm7, squirm8, squirm1, squirm2, squirm1, squirm1,
+  squirm7, squirm8, squirm9, squirm10, squirm11, squirm12,
 ];
 
 const clickedSequence = [
