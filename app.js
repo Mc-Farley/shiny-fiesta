@@ -2,6 +2,8 @@ const petImage = document.querySelector('#pet-image');
 const {
   idleOpen, idleClosed, shy1, shy2, shy3, shy4, shy5,
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked6, clicked7,
+  squirm1, squirm2, squirm3, squirm4, squirm5, squirm6, squirm7, squirm8,
+  greet1, greet2, greet3, greet4, greet5, greet6, greet7, greet8,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
@@ -17,7 +19,7 @@ let dragging = false;
 let moved = false;
 let start = { x: 0, y: 0, left: 0, top: 0 };
 let reactionTimer;
-
+let interactionTimer;
 
 const blinkSequence = [
   idleOpen, idleOpen, idleOpen, idleOpen,
@@ -36,6 +38,17 @@ const shySequence = [
   idleOpen, idleOpen,
 ];
 
+const greetSequence = [
+  greet1, greet2, greet3, greet4, greet5, greet6,
+  greet7, greet8, greet1, greet2, greet1, greet1,
+  idleOpen, idleOpen,
+];
+
+const squirmSequence = [
+  squirm1, squirm2, squirm3, squirm4, squirm5, squirm6,
+  squirm7, squirm8, squirm1, squirm2, squirm1, squirm1,
+];
+
 const clickedSequence = [
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked4,
   clicked6, clicked7, clicked6, clicked6, clicked6, clicked6,
@@ -46,12 +59,13 @@ function playSequence(sequence, frameDelay, returnDelay = 1100) {
   if (playingInteraction || dragging) return;
   playingInteraction = true;
   clearTimeout(blinkTimer);
+  clearTimeout(interactionTimer);
   let frame = 0;
   const next = () => {
     petImage.src = sequence[frame];
     frame += 1;
     if (frame < sequence.length) {
-      blinkTimer = setTimeout(next, frameDelay);
+      interactionTimer = setTimeout(next, frameDelay);
     } else {
       petImage.src = idleOpen;
       playingInteraction = false;
@@ -59,6 +73,11 @@ function playSequence(sequence, frameDelay, returnDelay = 1100) {
     }
   };
   next();
+}
+
+function playGreeting() {
+  say('Hi! I’m DeepSeek ♡', 2200);
+  playSequence(greetSequence, 90, 900);
 }
 
 function playClickedReact() {
@@ -90,6 +109,65 @@ function playBlink() {
   }
 }
 
+function playSquirm() {
+  let frame = 0;
+  const next = () => {
+    if (!dragging) return;
+    petImage.src = squirmSequence[frame];
+    frame = (frame + 1) % squirmSequence.length;
+    interactionTimer = setTimeout(next, 90);
+  };
+  next();
+}
+
+function cancelInteraction() {
+  clearTimeout(interactionTimer);
+  playingInteraction = false;
+  petImage.src = idleOpen;
+}
+
+const randomReactions = [
+  {
+    name: 'clicked_react',
+    play: playClickedReact,
+    lines: ['Ah! You got me!', 'Hehe, that tickles!', 'Hello to you too!'],
+    animation: 'is-petted',
+    emoji: '✨',
+    sparks: 6,
+  },
+  {
+    name: 'blush_shy',
+    play: playShy,
+    lines: ['Oh... you noticed me ♡', 'You’re making me blush!', 'That was unexpectedly sweet...'],
+    animation: 'is-love',
+    emoji: '♡',
+    sparks: 10,
+  },
+];
+
+function showReaction(emoji) {
+  reaction.textContent = emoji;
+  reaction.classList.remove('show');
+  void reaction.offsetWidth;
+  reaction.classList.add('show');
+  clearTimeout(reactionTimer);
+  reactionTimer = setTimeout(() => reaction.classList.remove('show'), 1800);
+}
+
+function pickRandomReaction() {
+  return randomReactions[Math.floor(Math.random() * randomReactions.length)];
+}
+
+function reactRandomly() {
+  const choice = pickRandomReaction();
+  const line = choice.lines[Math.floor(Math.random() * choice.lines.length)];
+  showReaction(choice.emoji);
+  say(line, 1900);
+  animate(choice.animation);
+  sparkle(choice.sparks);
+  choice.play();
+}
+
 const moods = {
   happy: { emoji: '😊', line: 'Today is a good day!', animation: 'is-happy', sparks: 8 },
   love: { emoji: '🥰', line: 'You’re my favorite human ♡', animation: 'is-love', sparks: 14 },
@@ -116,12 +194,7 @@ function animate(className) {
 
 function react(name) {
   const mood = moods[name];
-  reaction.textContent = mood.emoji;
-  reaction.classList.remove('show');
-  void reaction.offsetWidth;
-  reaction.classList.add('show');
-  clearTimeout(reactionTimer);
-  reactionTimer = setTimeout(() => reaction.classList.remove('show'), 1800);
+  showReaction(mood.emoji);
   say(mood.line, 1900);
   animate(mood.animation);
   sparkle(mood.sparks);
@@ -144,9 +217,7 @@ function sparkle(count = 7) {
 
 pet.addEventListener('click', () => {
   if (moved) return;
-  say('Ah! You got me!', 1500);
-  animate('is-petted');
-  playClickedReact();
+  reactRandomly();
 });
 
 pet.addEventListener('dblclick', (event) => {
@@ -163,10 +234,11 @@ pet.addEventListener('pointerdown', (event) => {
   start = { x: event.clientX, y: event.clientY, left: box.left, top: box.top };
   pet.setPointerCapture(event.pointerId);
   clearTimeout(blinkTimer);
-  petImage.src = idleOpen;
+  cancelInteraction();
+  playSquirm();
   pet.classList.remove('is-idle');
   pet.classList.add('is-dragging');
-  say('Wheee—careful!', 900);
+  say('Hey—hold on gently!', 1100);
 });
 
 pet.addEventListener('pointermove', (event) => {
@@ -183,6 +255,7 @@ pet.addEventListener('pointermove', (event) => {
 function drop() {
   if (!dragging) return;
   dragging = false;
+  cancelInteraction();
   pet.classList.remove('is-dragging');
   pet.classList.add('is-idle');
   if (moved) say('This spot is nice!', 1400);
@@ -206,5 +279,12 @@ moodButtons.forEach((button) => {
   button.addEventListener('click', () => react(button.dataset.mood));
 });
 
-scheduleBlink(1200);
-setTimeout(() => say('Hi! I’m DeepSeek ♡', 2200), 500);
+const greetingStorageKey = 'deepseek-greet-wave-seen';
+const isFirstVisit = localStorage.getItem(greetingStorageKey) !== 'true';
+
+if (isFirstVisit) {
+  localStorage.setItem(greetingStorageKey, 'true');
+  playGreeting();
+} else {
+  scheduleBlink(1200);
+}
