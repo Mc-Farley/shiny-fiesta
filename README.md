@@ -16,4 +16,4 @@ The cleaned 512×512 transparent frames are Base64-encoded in `pet-frames.js` an
 
 ## Animation system
 
-DeepSeek uses lightweight Live2D-inspired motion: breathing, frame-based automatic blinking, a click-triggered `clicked_react` sequence, a love-triggered `blush_shy` sequence, squash and stretch, drag tilt, bounce, sleepy sway, surprise, affection, particles, speech, and selectable moods. The animation honors the operating system's reduced-motion preference.
+DeepSeek uses lightweight Live2D-inspired motion: breathing, frame-based automatic blinking as her default idle behavior, and randomly selected `clicked_react` or `blush_shy` responses with matching dialogue whenever she is clicked. She also supports squash and stretch, drag tilt, bounce, sleepy sway, surprise, affection, particles, speech, and selectable moods. The animation honors the operating system's reduced-motion preference.

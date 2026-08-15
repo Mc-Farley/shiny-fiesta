@@ -17,7 +17,7 @@ let dragging = false;
 let moved = false;
 let start = { x: 0, y: 0, left: 0, top: 0 };
 let reactionTimer;
-
+let interactionTimer;
 
 const blinkSequence = [
   idleOpen, idleOpen, idleOpen, idleOpen,
@@ -29,6 +29,7 @@ const blinkSequence = [
 let blinkTimer;
 let blinkFrame = 0;
 let playingInteraction = false;
+let lastRandomReaction = -1;
 
 const shySequence = [
   shy1, shy2, shy3, shy4, shy3, shy2,
@@ -46,12 +47,13 @@ function playSequence(sequence, frameDelay, returnDelay = 1100) {
   if (playingInteraction || dragging) return;
   playingInteraction = true;
   clearTimeout(blinkTimer);
+  clearTimeout(interactionTimer);
   let frame = 0;
   const next = () => {
     petImage.src = sequence[frame];
     frame += 1;
     if (frame < sequence.length) {
-      blinkTimer = setTimeout(next, frameDelay);
+      interactionTimer = setTimeout(next, frameDelay);
     } else {
       petImage.src = idleOpen;
       playingInteraction = false;
@@ -90,6 +92,57 @@ function playBlink() {
   }
 }
 
+function cancelInteraction() {
+  clearTimeout(interactionTimer);
+  playingInteraction = false;
+  petImage.src = idleOpen;
+}
+
+const randomReactions = [
+  {
+    play: playClickedReact,
+    lines: ['Ah! You got me!', 'Hehe, that tickles!', 'Hello to you too!'],
+    animation: 'is-petted',
+    emoji: '✨',
+    sparks: 6,
+  },
+  {
+    play: playShy,
+    lines: ['Oh... you noticed me ♡', 'You’re making me blush!', 'That was unexpectedly sweet...'],
+    animation: 'is-love',
+    emoji: '♡',
+    sparks: 10,
+  },
+];
+
+function showReaction(emoji) {
+  reaction.textContent = emoji;
+  reaction.classList.remove('show');
+  void reaction.offsetWidth;
+  reaction.classList.add('show');
+  clearTimeout(reactionTimer);
+  reactionTimer = setTimeout(() => reaction.classList.remove('show'), 1800);
+}
+
+function pickRandomReaction() {
+  let index = Math.floor(Math.random() * randomReactions.length);
+  if (randomReactions.length > 1 && index === lastRandomReaction) {
+    index = (index + 1) % randomReactions.length;
+  }
+  lastRandomReaction = index;
+  return randomReactions[index];
+}
+
+function reactRandomly() {
+  const choice = pickRandomReaction();
+  const line = choice.lines[Math.floor(Math.random() * choice.lines.length)];
+  showReaction(choice.emoji);
+  say(line, 1900);
+  animate(choice.animation);
+  sparkle(choice.sparks);
+  choice.play();
+}
+
 const moods = {
   happy: { emoji: '😊', line: 'Today is a good day!', animation: 'is-happy', sparks: 8 },
   love: { emoji: '🥰', line: 'You’re my favorite human ♡', animation: 'is-love', sparks: 14 },
@@ -116,12 +169,7 @@ function animate(className) {
 
 function react(name) {
   const mood = moods[name];
-  reaction.textContent = mood.emoji;
-  reaction.classList.remove('show');
-  void reaction.offsetWidth;
-  reaction.classList.add('show');
-  clearTimeout(reactionTimer);
-  reactionTimer = setTimeout(() => reaction.classList.remove('show'), 1800);
+  showReaction(mood.emoji);
   say(mood.line, 1900);
   animate(mood.animation);
   sparkle(mood.sparks);
@@ -144,9 +192,7 @@ function sparkle(count = 7) {
 
 pet.addEventListener('click', () => {
   if (moved) return;
-  say('Ah! You got me!', 1500);
-  animate('is-petted');
-  playClickedReact();
+  reactRandomly();
 });
 
 pet.addEventListener('dblclick', (event) => {
@@ -163,7 +209,7 @@ pet.addEventListener('pointerdown', (event) => {
   start = { x: event.clientX, y: event.clientY, left: box.left, top: box.top };
   pet.setPointerCapture(event.pointerId);
   clearTimeout(blinkTimer);
-  petImage.src = idleOpen;
+  cancelInteraction();
   pet.classList.remove('is-idle');
   pet.classList.add('is-dragging');
   say('Wheee—careful!', 900);
