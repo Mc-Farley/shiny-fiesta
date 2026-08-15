@@ -1,6 +1,6 @@
 const petImage = document.querySelector('#pet-image');
 const {
-  idleOpen, idleClosed, shy1, shy2, shy3, shy4, shy5, shy6, shy7,
+  idleOpen, idleClosed, shy1, shy2, shy3, shy4, shy5,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
@@ -30,10 +30,9 @@ let blinkFrame = 0;
 let playingInteraction = false;
 
 const shySequence = [
-  shy1, shy2, shy3, shy4, shy5, shy6,
-  shy7, shy7, shy7, shy7, shy7,
-  shy6, shy5, shy4, shy3, shy2,
-  shy1, shy1, shy2,
+  shy1, shy2, shy3, shy4, shy3, shy2,
+  shy1, shy5, shy1, shy2, shy1, shy1,
+  idleOpen, idleOpen,
 ];
 
 function playShy() {

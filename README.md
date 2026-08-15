@@ -12,7 +12,7 @@ Open `http://localhost:8000`, then click, double-click, drag, or use the mood bu
 
 ## Image preparation
 
-The cleaned 512×512 transparent frames are Base64-encoded in `pet-frames.js` and reconstructed by the browser at runtime. Identical frames are deduplicated: the idle blink uses two unique images, while the 19-frame `blush_shy` interaction uses seven unique stages.
+The cleaned 512×512 transparent frames are Base64-encoded in `pet-frames.js` and reconstructed by the browser at runtime. Identical frames are deduplicated: the idle blink uses two unique images, while the cleaned 14-frame `blush_shy` interaction uses five unique shy stages and returns smoothly to idle.
 
 ## Animation system
 
