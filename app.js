@@ -338,12 +338,6 @@ moodButtons.forEach((button) => {
   button.addEventListener('click', () => react(button.dataset.mood));
 });
 
-const greetingStorageKey = 'deepseek-greet-wave-seen';
-const isFirstVisit = localStorage.getItem(greetingStorageKey) !== 'true';
-
-if (isFirstVisit) {
-  localStorage.setItem(greetingStorageKey, 'true');
-  playGreeting();
-} else {
-  scheduleBlink(1200);
-}
+// Greet on every page entry rather than suppressing the wave after a previous
+// visit stored in localStorage.
+playGreeting();
