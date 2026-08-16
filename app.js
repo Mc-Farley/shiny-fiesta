@@ -5,6 +5,10 @@ const {
   squirm1, squirm2, squirm3, squirm4, squirm5, squirm6,
   squirm7, squirm8, squirm9, squirm10, squirm11, squirm12,
   greet1, greet2, greet3, greet4, greet5, greet6, greet7, greet8,
+  pout1, pout2, pout3, pout4, pout5, pout6,
+  pout7, pout8, pout9, pout10, pout11, pout12,
+  sleep1, sleep2, sleep3, sleep4, sleep5, sleep6,
+  sleep7, sleep8, sleep9, sleep10, sleep11, sleep12,
 } = window.DEEPSEEK_FRAMES;
 petImage.src = idleOpen;
 const pet = document.querySelector('#pet');
@@ -17,6 +21,7 @@ const moodButtons = document.querySelectorAll('[data-mood]');
 
 let messageTimer;
 let dragging = false;
+let pointerPending = false;
 let moved = false;
 let start = { x: 0, y: 0, left: 0, top: 0 };
 let reactionTimer;
@@ -32,6 +37,18 @@ const blinkSequence = [
 let blinkTimer;
 let blinkFrame = 0;
 let playingInteraction = false;
+let poutActive = false;
+let recentClicks = [];
+let greetingActive = false;
+let greetingStopTimer;
+let sleeping = false;
+let sleepTimer;
+
+const rapidClickLimit = 10;
+const rapidClickWindow = 2000;
+const greetingDuration = 5000;
+const inactivityDuration = 2 * 60 * 1000;
+const dragThreshold = (2 / 25.4) * 96;
 
 const shySequence = [
   shy1, shy2, shy3, shy4, shy3, shy2,
@@ -39,10 +56,19 @@ const shySequence = [
   idleOpen, idleOpen,
 ];
 
-const greetSequence = [
+const greetFrames = [
   greet1, greet2, greet3, greet4, greet5, greet6,
-  greet7, greet8, greet1, greet2, greet1, greet1,
-  idleOpen, idleOpen,
+  greet7, greet8,
+];
+
+const poutSequence = [
+  pout1, pout2, pout3, pout4, pout5, pout6,
+  pout7, pout8, pout9, pout10, pout11, pout12,
+];
+
+const sleepSequence = [
+  sleep1, sleep2, sleep3, sleep4, sleep5, sleep6,
+  sleep7, sleep8, sleep9, sleep10, sleep11, sleep12,
 ];
 
 const squirmSequence = [
@@ -50,13 +76,76 @@ const squirmSequence = [
   squirm7, squirm8, squirm9, squirm10, squirm11, squirm12,
 ];
 
+function removeEdgeBackground(source) {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = image.naturalWidth;
+      canvas.height = image.naturalHeight;
+      const context = canvas.getContext('2d', { willReadFrequently: true });
+      context.drawImage(image, 0, 0);
+
+      const frame = context.getImageData(0, 0, canvas.width, canvas.height);
+      const { data } = frame;
+      const visited = new Uint8Array(canvas.width * canvas.height);
+      const queue = [];
+      const addPixel = (x, y) => {
+        if (x < 0 || y < 0 || x >= canvas.width || y >= canvas.height) return;
+        const pixel = y * canvas.width + x;
+        if (visited[pixel]) return;
+        visited[pixel] = 1;
+        const offset = pixel * 4;
+        if (data[offset] <= 18 && data[offset + 1] <= 18 && data[offset + 2] <= 18) {
+          queue.push(pixel);
+        }
+      };
+
+      for (let x = 0; x < canvas.width; x += 1) {
+        addPixel(x, 0);
+        addPixel(x, canvas.height - 1);
+      }
+      for (let y = 0; y < canvas.height; y += 1) {
+        addPixel(0, y);
+        addPixel(canvas.width - 1, y);
+      }
+
+      for (let index = 0; index < queue.length; index += 1) {
+        const pixel = queue[index];
+        data[pixel * 4 + 3] = 0;
+        const x = pixel % canvas.width;
+        const y = Math.floor(pixel / canvas.width);
+        addPixel(x - 1, y);
+        addPixel(x + 1, y);
+        addPixel(x, y - 1);
+        addPixel(x, y + 1);
+      }
+
+      context.putImageData(frame, 0, 0);
+      resolve(canvas.toDataURL('image/png'));
+    };
+    image.src = source;
+  });
+}
+
+// The supplied interaction frames were exported against opaque black. Clean
+// only the dark area connected to their edges so dark character details remain.
+const transparentSquirmFrames = Promise.all(squirmSequence.map(removeEdgeBackground));
+const transparentPoutFrames = Promise.all(poutSequence.map(removeEdgeBackground));
+const transparentSleepFrames = Promise.all(sleepSequence.map(removeEdgeBackground));
+const transparentGreetFrames = Promise.all(greetFrames.map(removeEdgeBackground))
+  .then((frames) => [
+    ...frames,
+    ...frames.slice(1, -1).reverse(),
+  ]);
+
 const clickedSequence = [
   clicked1, clicked2, clicked3, clicked4, clicked5, clicked4,
   clicked6, clicked7, clicked6, clicked6, clicked6, clicked6,
   idleOpen, idleOpen,
 ];
 
-function playSequence(sequence, frameDelay, returnDelay = 1100) {
+function playSequence(sequence, frameDelay, returnDelay = 1100, onComplete) {
   if (playingInteraction || dragging) return;
   playingInteraction = true;
   clearTimeout(blinkTimer);
@@ -70,23 +159,98 @@ function playSequence(sequence, frameDelay, returnDelay = 1100) {
     } else {
       petImage.src = idleOpen;
       playingInteraction = false;
-      scheduleBlink(returnDelay);
+      if (onComplete) {
+        onComplete();
+      } else {
+        scheduleBlink(returnDelay);
+      }
     }
   };
   next();
 }
 
-function playGreeting() {
-  say('Hi! I’m DeepSeek ♡', 2200);
-  playSequence(greetSequence, 90, 900);
+function playGreetingWave(frames) {
+  if (!greetingActive) return;
+  playSequence(frames, 90, 0, () => playGreetingWave(frames));
+}
+
+function stopGreeting(startIdle = false) {
+  if (!greetingActive) return;
+  greetingActive = false;
+  clearTimeout(greetingStopTimer);
+  cancelInteraction();
+  if (startIdle) scheduleBlink(900);
+}
+
+async function playGreeting() {
+  greetingActive = true;
+  greetingStopTimer = setTimeout(() => stopGreeting(true), greetingDuration);
+  say('Hi! I’m DeepSeek ♡', greetingDuration);
+  const frames = await transparentGreetFrames;
+  playGreetingWave(frames);
 }
 
 function playClickedReact() {
-  playSequence(clickedSequence, 74, 900);
+  const resumeGreeting = greetingActive;
+  if (resumeGreeting) cancelInteraction();
+  playSequence(clickedSequence, 74, 900, resumeGreeting
+    ? () => transparentGreetFrames.then(playGreetingWave)
+    : undefined);
+}
+
+async function playPout() {
+  cancelInteraction();
+  poutActive = true;
+  pet.disabled = true;
+  say('Hmph! Too many taps—give me a moment!', 2400);
+  showReaction('😤');
+  const frames = await transparentPoutFrames;
+  playSequence(frames, 90, 0, () => {
+    poutActive = false;
+    pet.disabled = false;
+    scheduleBlink(1200);
+  });
 }
 
 function playShy() {
   playSequence(shySequence, 78);
+}
+
+function scheduleSleep() {
+  clearTimeout(sleepTimer);
+  if (!sleeping) sleepTimer = setTimeout(startSleeping, inactivityDuration);
+}
+
+function playSleepLoop(frames) {
+  if (!sleeping) return;
+  playSequence(frames, 120, 0, () => playSleepLoop(frames));
+}
+
+async function startSleeping(force = false) {
+  if (sleeping || poutActive || dragging) {
+    if (!sleeping) sleepTimer = setTimeout(startSleeping, 1000);
+    return;
+  }
+  if (playingInteraction && !force) {
+    sleepTimer = setTimeout(startSleeping, 1000);
+    return;
+  }
+  clearTimeout(sleepTimer);
+  stopGreeting();
+  cancelInteraction();
+  sleeping = true;
+  say('Zzz… dreaming of gentle waves.', 2400);
+  const frames = await transparentSleepFrames;
+  playSleepLoop(frames);
+}
+
+function wakeUp() {
+  if (!sleeping) return;
+  sleeping = false;
+  cancelInteraction();
+  say('Oh! I’m awake!', 1800);
+  playClickedReact();
+  scheduleSleep();
 }
 
 function scheduleBlink(delay = 1800 + Math.random() * 2600) {
@@ -110,12 +274,14 @@ function playBlink() {
   }
 }
 
-function playSquirm() {
+async function playSquirm() {
+  const frames = await transparentSquirmFrames;
+  if (!dragging) return;
   let frame = 0;
   const next = () => {
     if (!dragging) return;
-    petImage.src = squirmSequence[frame];
-    frame = (frame + 1) % squirmSequence.length;
+    petImage.src = frames[frame];
+    frame = (frame + 1) % frames.length;
     interactionTimer = setTimeout(next, 90);
   };
   next();
@@ -131,7 +297,16 @@ const randomReactions = [
   {
     name: 'clicked_react',
     play: playClickedReact,
-    lines: ['Ah! You got me!', 'Hehe, that tickles!', 'Hello to you too!'],
+    lines: [
+      'Ah! You got me!',
+      'Hehe, that tickles!',
+      'Hello to you too!',
+      'Was that a tiny boop?',
+      'Oh! Another visitor!',
+      'Tap received loud and clear!',
+      'You have my attention!',
+      'I felt that one!',
+    ],
     animation: 'is-petted',
     emoji: '✨',
     sparks: 6,
@@ -139,7 +314,16 @@ const randomReactions = [
   {
     name: 'blush_shy',
     play: playShy,
-    lines: ['Oh... you noticed me ♡', 'You’re making me blush!', 'That was unexpectedly sweet...'],
+    lines: [
+      'Oh... you noticed me ♡',
+      'You’re making me blush!',
+      'That was unexpectedly sweet...',
+      'A little gentler, please ♡',
+      'You came back to see me!',
+      'I wasn’t expecting that tap...',
+      'Now I’m feeling shy!',
+      'Your attention makes me happy ♡',
+    ],
     animation: 'is-love',
     emoji: '♡',
     sparks: 10,
@@ -217,36 +401,64 @@ function sparkle(count = 7) {
 }
 
 pet.addEventListener('click', () => {
-  if (moved) return;
+  if (sleeping) {
+    wakeUp();
+    return;
+  }
+  stopGreeting();
+  scheduleSleep();
+  if (moved || poutActive) return;
+
+  const now = Date.now();
+  recentClicks = recentClicks.filter((clickedAt) => now - clickedAt <= rapidClickWindow);
+  recentClicks.push(now);
+  if (recentClicks.length >= rapidClickLimit) {
+    recentClicks = [];
+    playPout();
+    return;
+  }
+
   reactRandomly();
 });
 
 pet.addEventListener('dblclick', (event) => {
   event.preventDefault();
+  if (poutActive || sleeping) return;
+  scheduleSleep();
   say('A treat?! Thank you! ♡', 2000);
   animate('is-happy');
   sparkle(12);
 });
 
 pet.addEventListener('pointerdown', (event) => {
-  dragging = true;
+  if (poutActive) {
+    event.preventDefault();
+    return;
+  }
+  if (sleeping) return;
+  scheduleSleep();
+  pointerPending = true;
   moved = false;
   const box = zone.getBoundingClientRect();
   start = { x: event.clientX, y: event.clientY, left: box.left, top: box.top };
   pet.setPointerCapture(event.pointerId);
-  clearTimeout(blinkTimer);
-  cancelInteraction();
-  playSquirm();
-  pet.classList.remove('is-idle');
-  pet.classList.add('is-dragging');
-  say('Hey—hold on gently!', 1100);
 });
 
 pet.addEventListener('pointermove', (event) => {
-  if (!dragging) return;
+  if (!pointerPending && !dragging) return;
   const dx = event.clientX - start.x;
   const dy = event.clientY - start.y;
-  if (Math.hypot(dx, dy) > 5) moved = true;
+  if (!dragging) {
+    if (Math.hypot(dx, dy) < dragThreshold) return;
+    dragging = true;
+    moved = true;
+    clearTimeout(blinkTimer);
+    cancelInteraction();
+    playSquirm();
+    pet.classList.remove('is-idle');
+    pet.classList.add('is-dragging');
+    say('Hey—hold on gently!', 1100);
+  }
   const maxLeft = innerWidth - zone.offsetWidth / 2;
   const maxTop = innerHeight - zone.offsetHeight / 2;
   zone.style.left = `${Math.max(zone.offsetWidth / 2, Math.min(maxLeft, start.left + zone.offsetWidth / 2 + dx))}px`;
@@ -254,6 +466,8 @@ pet.addEventListener('pointermove', (event) => {
 });
 
 function drop() {
+  if (!pointerPending && !dragging) return;
+  pointerPending = false;
   if (!dragging) return;
   dragging = false;
   cancelInteraction();
@@ -267,25 +481,39 @@ function drop() {
 pet.addEventListener('pointerup', drop);
 pet.addEventListener('pointercancel', drop);
 pet.addEventListener('keydown', (event) => {
+  if (poutActive) return;
+  if (sleeping) {
+    wakeUp();
+    return;
+  }
+  scheduleSleep();
   if (event.key === 'Enter' || event.key === ' ') sparkle(5);
 });
 
 soundButton.addEventListener('click', () => {
+  scheduleSleep();
   const enabled = soundButton.getAttribute('aria-pressed') !== 'true';
   soundButton.setAttribute('aria-pressed', String(enabled));
   say(enabled ? 'Sound on ♪' : 'Quiet mode…');
 });
 
 moodButtons.forEach((button) => {
-  button.addEventListener('click', () => react(button.dataset.mood));
+  button.addEventListener('click', () => {
+    if (poutActive) return;
+    if (sleeping) {
+      wakeUp();
+      return;
+    }
+    scheduleSleep();
+    if (button.dataset.mood === 'sleepy') {
+      startSleeping(true);
+      return;
+    }
+    react(button.dataset.mood);
+    if (button.dataset.mood === 'surprised') playClickedReact();
+  });
 });
 
-const greetingStorageKey = 'deepseek-greet-wave-seen';
-const isFirstVisit = localStorage.getItem(greetingStorageKey) !== 'true';
-
-if (isFirstVisit) {
-  localStorage.setItem(greetingStorageKey, 'true');
-  playGreeting();
-} else {
-  scheduleBlink(1200);
-}
+// Wave on entry until the character is clicked or the five-second limit passes.
+playGreeting();
+scheduleSleep();
