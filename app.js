@@ -34,8 +34,6 @@ const blinkSequence = [
   idleClosed, idleClosed,
   idleOpen, idleOpen, idleOpen,
 ];
-let displayIdleOpen = idleOpen;
-let displayBlinkSequence = blinkSequence;
 let blinkTimer;
 let blinkFrame = 0;
 let playingInteraction = false;
@@ -90,13 +88,6 @@ function removeEdgeBackground(source) {
 
       const frame = context.getImageData(0, 0, canvas.width, canvas.height);
       const { data } = frame;
-      let hasTransparency = false;
-      for (let offset = 3; offset < data.length; offset += 4) {
-        if (data[offset] < 255) {
-          hasTransparency = true;
-          break;
-        }
-      }
       const visited = new Uint8Array(canvas.width * canvas.height);
       const queue = [];
       const addPixel = (x, y) => {
@@ -105,10 +96,7 @@ function removeEdgeBackground(source) {
         if (visited[pixel]) return;
         visited[pixel] = 1;
         const offset = pixel * 4;
-        const isBackground = hasTransparency
-          ? data[offset + 3] === 0
-          : data[offset] <= 18 && data[offset + 1] <= 18 && data[offset + 2] <= 18;
-        if (isBackground) {
+        if (data[offset] <= 18 && data[offset + 1] <= 18 && data[offset + 2] <= 18) {
           queue.push(pixel);
         }
       };
@@ -133,41 +121,6 @@ function removeEdgeBackground(source) {
         addPixel(x, y + 1);
       }
 
-      const touchesTransparentPixel = (alpha, pixel) => alpha[pixel - 1] === 0
-        || alpha[pixel + 1] === 0
-        || alpha[pixel - canvas.width] === 0
-        || alpha[pixel + canvas.width] === 0;
-      const snapshotAlpha = () => {
-        const alpha = new Uint8Array(canvas.width * canvas.height);
-        for (let pixel = 0; pixel < alpha.length; pixel += 1) {
-          alpha[pixel] = data[pixel * 4 + 3];
-        }
-        return alpha;
-      };
-
-      // Trim the single contaminated outer pixel, then give the new edge one
-      // consistent partially-transparent pixel. This geometry-based treatment
-      // avoids guessing from outline color and produces the same edge on every
-      // frame without changing the character's interior colors.
-      const beforeTrim = snapshotAlpha();
-      for (let y = 1; y < canvas.height - 1; y += 1) {
-        for (let x = 1; x < canvas.width - 1; x += 1) {
-          const pixel = y * canvas.width + x;
-          if (beforeTrim[pixel] && touchesTransparentPixel(beforeTrim, pixel)) {
-            data[pixel * 4 + 3] = 0;
-          }
-        }
-      }
-      const afterTrim = snapshotAlpha();
-      for (let y = 1; y < canvas.height - 1; y += 1) {
-        for (let x = 1; x < canvas.width - 1; x += 1) {
-          const pixel = y * canvas.width + x;
-          if (afterTrim[pixel] && touchesTransparentPixel(afterTrim, pixel)) {
-            data[pixel * 4 + 3] = Math.min(data[pixel * 4 + 3], 192);
-          }
-        }
-      }
-
       context.putImageData(frame, 0, 0);
       resolve(canvas.toDataURL('image/png'));
     };
@@ -180,13 +133,6 @@ function removeEdgeBackground(source) {
 const transparentSquirmFrames = Promise.all(squirmSequence.map(removeEdgeBackground));
 const transparentPoutFrames = Promise.all(poutSequence.map(removeEdgeBackground));
 const transparentSleepFrames = Promise.all(sleepSequence.map(removeEdgeBackground));
-const transparentShyFrames = Promise.all(shySequence.map(removeEdgeBackground));
-Promise.all([idleOpen, idleClosed].map(removeEdgeBackground))
-  .then(([open, closed]) => {
-    displayIdleOpen = open;
-    displayBlinkSequence = blinkSequence.map((frame) => (frame === idleClosed ? closed : open));
-    if (!playingInteraction && !dragging && !sleeping) petImage.src = open;
-  });
 const transparentGreetFrames = Promise.all(greetFrames.map(removeEdgeBackground))
   .then((frames) => [
     ...frames,
@@ -198,7 +144,6 @@ const clickedSequence = [
   clicked6, clicked7, clicked6, clicked6, clicked6, clicked6,
   idleOpen, idleOpen,
 ];
-const transparentClickedFrames = Promise.all(clickedSequence.map(removeEdgeBackground));
 
 function playSequence(sequence, frameDelay, returnDelay = 1100, onComplete) {
   if (playingInteraction || dragging) return;
@@ -212,7 +157,7 @@ function playSequence(sequence, frameDelay, returnDelay = 1100, onComplete) {
     if (frame < sequence.length) {
       interactionTimer = setTimeout(next, frameDelay);
     } else {
-      petImage.src = displayIdleOpen;
+      petImage.src = idleOpen;
       playingInteraction = false;
       if (onComplete) {
         onComplete();
@@ -245,11 +190,10 @@ async function playGreeting() {
   playGreetingWave(frames);
 }
 
-async function playClickedReact() {
-  const frames = await transparentClickedFrames;
+function playClickedReact() {
   const resumeGreeting = greetingActive;
   if (resumeGreeting) cancelInteraction();
-  playSequence(frames, 74, 900, resumeGreeting
+  playSequence(clickedSequence, 74, 900, resumeGreeting
     ? () => transparentGreetFrames.then(playGreetingWave)
     : undefined);
 }
@@ -268,9 +212,8 @@ async function playPout() {
   });
 }
 
-async function playShy() {
-  const frames = await transparentShyFrames;
-  playSequence(frames, 78);
+function playShy() {
+  playSequence(shySequence, 78);
 }
 
 function scheduleSleep() {
@@ -320,13 +263,13 @@ function playBlink() {
     scheduleBlink(600);
     return;
   }
-  petImage.src = displayBlinkSequence[blinkFrame];
+  petImage.src = blinkSequence[blinkFrame];
   blinkFrame += 1;
-  if (blinkFrame < displayBlinkSequence.length) {
+  if (blinkFrame < blinkSequence.length) {
     blinkTimer = setTimeout(playBlink, 72);
   } else {
     blinkFrame = 0;
-    petImage.src = displayIdleOpen;
+    petImage.src = idleOpen;
     scheduleBlink();
   }
 }
@@ -347,7 +290,7 @@ async function playSquirm() {
 function cancelInteraction() {
   clearTimeout(interactionTimer);
   playingInteraction = false;
-  petImage.src = displayIdleOpen;
+  petImage.src = idleOpen;
 }
 
 const randomReactions = [
