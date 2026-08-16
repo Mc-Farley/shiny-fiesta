@@ -133,33 +133,37 @@ function removeEdgeBackground(source) {
         addPixel(x, y + 1);
       }
 
-      // Remove the dark matte left by anti-aliasing against the old black
-      // background. Work inward only a few pixels from transparent space so
-      // dark details inside the character are not changed.
-      for (let pass = 0; pass < 3; pass += 1) {
-        const previousAlpha = new Uint8Array(canvas.width * canvas.height);
-        for (let pixel = 0; pixel < previousAlpha.length; pixel += 1) {
-          previousAlpha[pixel] = data[pixel * 4 + 3];
+      const touchesTransparentPixel = (alpha, pixel) => alpha[pixel - 1] === 0
+        || alpha[pixel + 1] === 0
+        || alpha[pixel - canvas.width] === 0
+        || alpha[pixel + canvas.width] === 0;
+      const snapshotAlpha = () => {
+        const alpha = new Uint8Array(canvas.width * canvas.height);
+        for (let pixel = 0; pixel < alpha.length; pixel += 1) {
+          alpha[pixel] = data[pixel * 4 + 3];
         }
-        for (let y = 1; y < canvas.height - 1; y += 1) {
-          for (let x = 1; x < canvas.width - 1; x += 1) {
-            const pixel = y * canvas.width + x;
-            if (!previousAlpha[pixel]) continue;
-            const touchesEdge = previousAlpha[pixel - 1] < 250
-              || previousAlpha[pixel + 1] < 250
-              || previousAlpha[pixel - canvas.width] < 250
-              || previousAlpha[pixel + canvas.width] < 250;
-            if (!touchesEdge) continue;
-            const offset = pixel * 4;
-            const brightness = Math.max(data[offset], data[offset + 1], data[offset + 2]);
-            if (brightness >= 80) continue;
-            const alpha = Math.round((brightness / 80) * 255);
-            if (alpha >= data[offset + 3]) continue;
-            const decontaminate = alpha ? 255 / alpha : 1;
-            data[offset] = Math.min(255, Math.round(data[offset] * decontaminate));
-            data[offset + 1] = Math.min(255, Math.round(data[offset + 1] * decontaminate));
-            data[offset + 2] = Math.min(255, Math.round(data[offset + 2] * decontaminate));
-            data[offset + 3] = alpha;
+        return alpha;
+      };
+
+      // Trim the single contaminated outer pixel, then give the new edge one
+      // consistent partially-transparent pixel. This geometry-based treatment
+      // avoids guessing from outline color and produces the same edge on every
+      // frame without changing the character's interior colors.
+      const beforeTrim = snapshotAlpha();
+      for (let y = 1; y < canvas.height - 1; y += 1) {
+        for (let x = 1; x < canvas.width - 1; x += 1) {
+          const pixel = y * canvas.width + x;
+          if (beforeTrim[pixel] && touchesTransparentPixel(beforeTrim, pixel)) {
+            data[pixel * 4 + 3] = 0;
+          }
+        }
+      }
+      const afterTrim = snapshotAlpha();
+      for (let y = 1; y < canvas.height - 1; y += 1) {
+        for (let x = 1; x < canvas.width - 1; x += 1) {
+          const pixel = y * canvas.width + x;
+          if (afterTrim[pixel] && touchesTransparentPixel(afterTrim, pixel)) {
+            data[pixel * 4 + 3] = Math.min(data[pixel * 4 + 3], 192);
           }
         }
       }
@@ -177,7 +181,7 @@ const transparentSquirmFrames = Promise.all(squirmSequence.map(removeEdgeBackgro
 const transparentPoutFrames = Promise.all(poutSequence.map(removeEdgeBackground));
 const transparentSleepFrames = Promise.all(sleepSequence.map(removeEdgeBackground));
 const transparentShyFrames = Promise.all(shySequence.map(removeEdgeBackground));
-const transparentIdleFrames = Promise.all([idleOpen, idleClosed].map(removeEdgeBackground))
+Promise.all([idleOpen, idleClosed].map(removeEdgeBackground))
   .then(([open, closed]) => {
     displayIdleOpen = open;
     displayBlinkSequence = blinkSequence.map((frame) => (frame === idleClosed ? closed : open));
