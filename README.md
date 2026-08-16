@@ -10,7 +10,7 @@ an alert, enable nap mode, or feed her snacks to discover her reactions.
 npm run dev
 ```
 
-The development command first extracts the animated previews from the supplied
+The development command extracts the animated previews from the supplied
 reaction-library archive, then serves the site at `http://localhost:4173`. No
 package installation is required.
 
@@ -20,6 +20,6 @@ package installation is required.
 npm run build
 ```
 
-The dependency-free build is written to `dist/`. Reaction previews are extracted
-from `deepseek-desktop-pet-reaction-library.zip` during the build, avoiding
-duplicate binary assets in source control.
+The dependency-free build is written to `dist/`. Direct static previews use an
+inline SVG character fallback, so the companion remains visible even when the
+binary reaction previews have not been extracted from the archive.

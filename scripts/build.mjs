@@ -8,7 +8,7 @@ await Promise.all([
   cp('src', 'dist/src', { recursive: true })
 ])
 
-// Extract from the supplied archive instead of committing duplicate binaries.
+// The archive remains the source of binary previews so pull requests stay text-only.
 execFileSync('unzip', [
   '-jo',
   'deepseek-desktop-pet-reaction-library.zip',
