@@ -20,7 +20,7 @@ document.querySelector('#app').innerHTML = `
     <section class="pet-zone" aria-label="Interactive desktop pet">
       <div class="orbit one"></div><div class="orbit two"></div><div class="bubbles"><i></i><i></i><i></i><i></i></div>
       <div class="speech" id="speech"><span>“</span><p id="line">${moods.wave[1]}</p></div>
-      <button class="pet" id="pet" aria-label="Pet the whale girl"><img id="petImg" src="/assets/wave.webp" alt="Blue whale maid desktop companion"></button>
+      <button class="pet" id="pet" aria-label="Pet the whale girl"><img id="petImg" src="assets/wave.webp" alt="Blue whale maid desktop companion"></button>
       <div class="shadow"></div>
       <div class="status-pill"><i></i><span><small>CURRENT STATE</small><b id="state">${moods.wave[0]}</b></span><div class="bars">▂▄▆▄▇</div></div>
     </section>
@@ -39,10 +39,10 @@ document.querySelector('#app').innerHTML = `
 const img = document.querySelector('#petImg'), state = document.querySelector('#state'), line = document.querySelector('#line'), speech = document.querySelector('#speech')
 let busy, tapCount = 0, snackCount = 3, start = Date.now() - 15129000
 function react(type, custom) {
-  clearTimeout(busy); img.src = `/assets/${type}.webp`; state.textContent = moods[type][0]; line.textContent = custom || moods[type][1]
+  clearTimeout(busy); img.src = `assets/${type}.webp`; state.textContent = moods[type][0]; line.textContent = custom || moods[type][1]
   speech.classList.remove('pop'); void speech.offsetWidth; speech.classList.add('pop')
   document.querySelectorAll('.actions button').forEach(b => b.classList.toggle('active', b.dataset.mood === type))
-  busy = setTimeout(() => { img.src='/assets/idle.webp'; state.textContent=moods.idle[0]; line.textContent=moods.idle[1]; document.querySelectorAll('.active').forEach(b=>b.classList.remove('active')) }, 4200)
+  busy = setTimeout(() => { img.src='assets/idle.webp'; state.textContent=moods.idle[0]; line.textContent=moods.idle[1]; document.querySelectorAll('.active').forEach(b=>b.classList.remove('active')) }, 4200)
 }
 document.querySelectorAll('[data-mood]').forEach(b => b.addEventListener('click', () => react(b.dataset.mood)))
 document.querySelector('#pet').addEventListener('click', () => { tapCount++; react(tapCount % 4 === 0 ? 'angry' : 'tap') })

@@ -18,5 +18,5 @@ execFileSync('unzip', [
 ], { stdio: 'inherit' })
 
 const source = await readFile('dist/index.html', 'utf8')
-if (!source.includes('/src/main.js')) throw new Error('Missing application entrypoint')
+if (!source.includes('src/main.js')) throw new Error('Missing application entrypoint')
 console.log('Static site built in dist/')
