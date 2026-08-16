@@ -1,5 +1,3 @@
-import './style.css'
-
 const moods = {
   idle: ['IDLE', 'Systems quiet. I was not waiting for you, obviously.'],
   happy: ['DELIGHTED', 'Task complete! Easy. Barely used one fin.'],
